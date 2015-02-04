@@ -1,0 +1,186 @@
+﻿a {
+    color: #aaaaaa;
+}
+
+    a:hover {
+        color: gold;
+    }
+
+body {
+    font-family: 'Calibri', sans-serif;
+    font-size: 14px;
+    background-color: #3b3b3b;
+    color: whitesmoke;
+}
+
+.title {
+    font-size: 35px;
+    font-weight: bold;
+    margin-left: 15px;
+}
+
+.refresh {
+    font-size: 14px;
+    margin-left: 15px;
+}
+
+.error {
+    margin: 20px;
+    color: #fff41f;
+}
+
+.menuitem {
+    display: inline-block;
+    float:right;
+    margin-right: 25px;
+}
+
+.release {
+    color: #2b4055;
+    margin-top: 10px;
+    margin-left: 10px;
+    margin-right: 10px;
+    margin-bottom: 20px;
+    padding: 10px;
+    border-radius: 10px;
+    background-color: #aaaaaa;
+}
+    .name {
+        margin-left: 10px;
+        font-size: 175%;
+        font-weight: bold;
+    }
+    .date {
+        margin-left: 10px;
+        font-size: 125%;
+        font-weight: bold;
+    }
+
+.status-bar {
+    border-radius: 2px;
+    margin: 10px;
+    height: 10px;
+    font-size: 0;
+}
+
+    .status-bar.in-progress {
+        background-color: #0f75d7;
+    }
+
+    .status-bar.released {
+        background-color: #59d42f;
+    }
+
+    .status-bar.error {
+        background-color: #ff1f1f;
+    }
+
+    .status-bar.draft {
+        background-color: #fff41f;
+    }
+
+.pipeline {
+    display: inline-block;
+}
+
+.stage {
+    text-align: center;
+    color: White;
+    display: inline-block;
+    float: left;
+    background-color: #2b4055;
+    min-width: 175px;
+    min-height: 175px;
+    margin: 5px;
+    padding: 5px;
+    border-radius: 10px;
+}
+
+.header {
+    font-weight: bold;
+    font-size: 130%;
+    color: #fff41f;
+}
+
+.stage-seperator {
+    display: inline-block;
+    width: 15px;
+    height: 125px;
+    background-image: url('../images/Arrow.png');
+    background-repeat: no-repeat;
+    background-position-y: 25px;
+}
+
+    .stage-seperator.last {
+        background-image: none;
+    }
+
+.step {
+    font-size: smaller;
+    margin: 5px;
+    padding: 2px;
+    border-radius: 5px;
+    vertical-align: middle;
+    color: black;
+}
+
+    .step.pending {
+        background-image: url('/assets/images/activebg.gif');
+    }
+
+    .step.done {
+        background-color: #a5ff86;
+    }
+
+    .step.stopped {
+        background-color: #ffc755;
+    }
+
+    .step.rejected {
+        background-color: #ff6868;
+    }
+
+    .step.cancelled {
+        background-color: #fff41f;
+    }
+
+    .step.reassigned {
+        background-color: #b454ff;
+    }
+
+.targetstage {
+    position: absolute;
+    background-image: url('/assets/images/target.png');
+    background-repeat: no-repeat;
+    background-size: cover;
+    width: 20px;
+    height: 20px;
+}
+
+.config-panel {
+    color: #2b4055;
+    font-size: 18px;
+    font-weight: bold;
+    margin: 10px;
+    padding: 10px;
+    border-radius: 10px;
+    background-color: #aaaaaa;
+}
+
+    .config-panel a {
+        padding-left: 10px;
+        padding-right: 10px;
+        padding-bottom: 2px;
+        background-color: #757575;
+        color: whitesmoke;
+        text-decoration: none;
+    }
+
+    .config-panel a:hover {
+        color: whitesmoke;
+        background-color: #1982db;
+    }
+
+.field {
+    margin: 10px;
+}
