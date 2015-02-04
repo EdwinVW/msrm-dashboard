@@ -1,0 +1,50 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" ng-app="rmDashboardApp" ng-controller="overviewController">
+<head>
+    <title>{{title}}</title>
+    <link href="assets/css/{{theme}}.css" rel="stylesheet" />
+    <script src="scripts/jquery-2.1.3.min.js"></script>
+    <script src="scripts/jquery.cookie.js"></script>
+    <script src="scripts/angular.min.js"></script>
+    <script src="scripts/angular-sanitize.min.js"></script>
+    <script src="scripts/angular-route.min.js"></script>
+    <script src="app/app.js"></script>
+    <script src="app/services/releaseManagementService.js"></script>
+    <script src="app/services/configService.js"></script>
+    <script src="app/controllers/overviewController.js"></script>
+    <script src="app/directives/releaseStatusStyleDirective.js"></script>
+    <script src="app/directives/stepStatusStyleDirective.js"></script>
+</head>
+<body>
+    <div>
+        <div class="title"><span>{{title}}</span><span ng-show="team"> - {{team}}</span></div>
+        <div class="menuitem"><a href="/config.html">Configure</a></div>
+        <div class="error" ng-show="hasError">
+            <div><strong>Error: {{error.ExceptionMessage}}</strong></div>
+            <div>{{error.StackTrace}}</div>
+        </div>
+        <div ng-hide="hasError">
+            <div class="refresh">Last refresh: {{data.lastRefresh | date:'dd-MM-yyyy HH:mm:ss'}}</div>
+            <div ng-repeat="release in data.releases" class="release" ng-hide="data.error">
+                <div class="name">{{release.name}} - {{release.status}}</div>
+                <hr class="status-bar" release-status-style />
+                <div class="date">Started on: {{release.createdOn | date:'dd-MM-yyyy HH:mm:ss'}}</div>
+                <div class="date">Release Path: {{release.releasePathName}}</div>
+                <div ng-repeat="stage in release.stages" class="pipeline">
+                    <div class="stage">
+                        <div class="targetstage" ng-show="stage.id == release.targetStageId"></div>
+                        <div class="header">{{stage.name}}</div>
+                        <div>{{stage.environment}}</div>
+                        <div ng-repeat="step in stage.steps" class="step" step-status-style>
+                            <div><strong>{{step.name}}</strong></div>
+                            <div>Started: {{step.createdOn | date:'hh:mm:ss'}}</div>
+                            <div>Status: {{step.status}}</div>
+                        </div>
+                    </div>
+                    <div class="stage-seperator" ng-class="{'last': $last}"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

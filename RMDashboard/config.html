@@ -1,0 +1,71 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" ng-app="rmDashboardApp" ng-controller="configController">
+<head>
+    <title>Release Management Dashboard Configuration</title>
+    <link href="assets/css/{{config.theme}}.css" rel="stylesheet" />
+    <script src="scripts/jquery-2.1.3.min.js"></script>
+    <script src="scripts/jquery.cookie.js"></script>
+    <script src="scripts/angular.min.js"></script>
+    <script src="scripts/angular-sanitize.min.js"></script>
+    <script src="scripts/angular-route.min.js"></script>
+    <script src="app/app.js"></script>
+    <script src="app/services/releaseManagementService.js"></script>
+    <script src="app/services/configService.js"></script>
+    <script src="app/controllers/configController.js"></script>
+</head>
+<body>
+    <div class="title">Release Management Dashboard Configuration Panel</div>
+    <div class="error" ng-show="hasError">
+        <div><strong>Error: {{error.Message}}</strong></div>
+        <div>{{error.MessageDetail}}</div>
+    </div>
+    <div class="config-panel" ng-hide="hasError">
+        <div class="field">
+            <div>Title:</div>
+            <input type="text" ng-model="config.title" maxlength="75" size="75" />
+        </div>
+        <div class="field">
+            <div>Theme:</div>
+            <select ng-model="config.theme">
+                <option value="dark">Dark</option>
+                <option value="light">Light</option>
+            </select>
+        </div>
+        <div class="field">
+            <div>Auto refresh:</div>
+            <select ng-model="config.autoRefresh">
+                <option value="true">Yes</option>
+                <option value="false">No</option>
+            </select>
+        </div>
+        <div class="field">
+            <div>Refresh interval:</div>
+            <select ng-model="config.refreshInterval">
+                <option value="5000">5 seconds</option>
+                <option value="10000">10 seconds</option>
+                <option value="15000">15 seconds</option>
+                <option value="20000">20 seconds</option>
+                <option value="25000">25 seconds</option>
+                <option value="30000">30 seconds</option>
+                <option value="35000">35 seconds</option>
+                <option value="40000">40 seconds</option>
+                <option value="45000">45 seconds</option>
+                <option value="50000">50 seconds</option>
+                <option value="60000">1 minute</option>
+                <option value="120000">2 minutes</option>
+                <option value="300000">5 minutes</option>
+            </select>
+        </div>
+        <div class="field">
+            Release Paths to show:
+            <div ng-repeat="releasePath in releasePaths">
+                <input type="checkbox" ng-model="releasePath.value" /> {{releasePath.name}}
+            </div>
+        </div>
+        <div class="field">
+            <a href="/" ng-click="saveConfig();">Save</a>
+            <a href="/">Cancel</a>
+        </div>
+    </div>
+</body>
+</html>

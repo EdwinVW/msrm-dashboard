@@ -1,0 +1,1 @@
+﻿var rmDashboardApp = angular.module('rmDashboardApp', []);
