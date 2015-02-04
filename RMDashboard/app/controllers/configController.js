@@ -38,7 +38,7 @@ rmDashboardApp.controller('configController', ['$scope', 'releaseManagementServi
     releaseManagementService.getReleasePaths(function (err, data) {
         if (err) {
             $scope.hasError = true;
-            $scope.error = data;
+            $scope.error = err;
         }
         else {
             $scope.hasError = false;

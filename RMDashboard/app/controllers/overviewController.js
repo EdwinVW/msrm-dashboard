@@ -24,7 +24,7 @@ rmDashboardApp
                 releaseManagementService.getReleases(function (err, data) {
                     if (err) {
                         $scope.hasError = true;
-                        $scope.error = data;
+                        $scope.error = err;
                     }
                     else {
                         $scope.hasError = false;
