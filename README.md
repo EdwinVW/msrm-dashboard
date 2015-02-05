@@ -18,14 +18,14 @@ By clicking the 'Configure' link in the upper-right corner of the dashboard, the
 
 The following settings are available:
 
-- Title : the title shown on the dashboard
-- Theme : the color theme to use
-- Auto refresh : indication whether or not the page is automatically refreshed
-- Refresh interval : the interval to wait between every page refresh
-- Neumer of releases : the number of releases to show on the dashboard
-- Release paths : the release paths to show on the dashboard (none selected means no filter)
+- **Title** : the title shown on the dashboard
+- **Theme** : the color theme to use
+- **Auto refresh** : indication whether or not the page is automatically refreshed
+- **Refresh interval** : the interval to wait between every page refresh
+- **Number of releases** : the number of releases to show on the dashboard
+- **Release paths** : the releasepaths to show on the dashboard (none selected means no filter)
 
-If one or more release paths are selected and a new release path is added in RM, this new release path is not shown on the dashboard until it is selected on the configuration panel.
+If one or more releasepaths are selected and a new releasepath is added in RM, this new releasepath is not shown on the dashboard until it is selected on the configuration panel.
 
 The settings are persisted in a cookie on the client machine when the 'Save' button is clicked.
 The cancel button will discard any configuration changes and return to the dashboard.
@@ -49,14 +49,14 @@ The user used to connect to the database must have read-access to the following 
 
 The WebAPI exposes 2 resources:
 
-- /api/releases : the data that is presented on the dashboard
-- /api/releasepaths : the list of releasepaths defined in RM (used on the configuration panel)
+- **/api/releases** : the data that is presented on the dashboard
+- **/api/releasepaths** : the list of releasepaths defined in RM (used on the configuration panel)
 
 When doing a GET request on /api/releases, two optional headers can be included in the request:
 
-- includedReleasePathIds : a comma-seperated list (without spaces )of release path Ids to include in the dashboard
-- releaseCount : the number of releases to show in the dashboard
+- **includedReleasePathIds** : a comma-separated list (without spaces) of releasepath Ids to include in the dashboard
+- **releaseCount** : the number of releases to show in the dashboard
 
 ## Compatibility
-The dasboard is currently only tested with Release Management 2013 Update 4 and is only implemented for the "vNext" functionality in RM. 
+The dashboard is currently only tested with Release Management 2013 Update 4 and is only implemented for the "vNext" functionality in RM. 
 
