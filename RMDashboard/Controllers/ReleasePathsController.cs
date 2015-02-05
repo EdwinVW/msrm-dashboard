@@ -16,8 +16,15 @@ namespace RMDashboard.Controllers
         // GET: api/releasepath
         public object Get()
         {
-            var releasePaths = GetData();
-            return releasePaths.Select(rp => new { id = rp.Id, name = rp.Name, description = rp.Description });
+            try
+            {
+                var releasePaths = GetData();
+                return releasePaths.Select(rp => new { id = rp.Id, name = rp.Name, description = rp.Description });
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateErrorResponse(HttpStatusCode.InternalServerError, ex.Message);
+            }
         }
 
         private List<ReleasePath> GetData()

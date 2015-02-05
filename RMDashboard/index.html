@@ -20,8 +20,7 @@
         <div class="title"><span>{{title}}</span><span ng-show="team"> - {{team}}</span></div>
         <div class="menuitem"><a href="/config.html">Configure</a></div>
         <div class="error" ng-show="hasError">
-            <div><strong>Error: {{error.ExceptionMessage}}</strong></div>
-            <div>{{error.StackTrace}}</div>
+            <div><strong>Error: {{error.Message}}</strong></div>
         </div>
         <div ng-hide="hasError">
             <div class="refresh">Last refresh: {{data.lastRefresh | date:'dd-MM-yyyy HH:mm:ss'}}</div>

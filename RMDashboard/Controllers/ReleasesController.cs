@@ -20,71 +20,83 @@ namespace RMDashboard.Controllers
             result.lastRefresh = DateTime.Now;
             result.releases = new List<dynamic>();
 
-            // determine ReleasePathIds to include based on HTTP header
-            string includedReleasePathIds = null;
-            if (message.Headers.Contains("includedReleasePathIds"))
+            try
             {
-                includedReleasePathIds = message.Headers.GetValues("includedReleasePathIds").First();
-            }
-
-            var data = GetData(includedReleasePathIds);
-            var releases = data.Releases;
-            foreach (var releaseData in releases)
-            {
-                // release
-                dynamic release = new ExpandoObject();
-                result.releases.Add(release);
-                release.name = releaseData.Name;
-                release.status = releaseData.Status;
-                release.createdOn = releaseData.CreatedOn;
-                release.targetStageId = releaseData.TargetStageId;
-                release.releasePathName = releaseData.ReleasePathName;
-                release.stages = new List<dynamic>();
-
-                // stages
-                var stages = data.Stages
-                    .Where(stage => data.StageWorkflows.Any(wf => wf.StageId == stage.Id && wf.ReleaseId == releaseData.Id))
-                    .OrderBy(stage => stage.Rank);
-                foreach (var stageData in stages)
+                // determine ReleasePathIds to include based on HTTP header
+                string includedReleasePathIds = null;
+                int releaseCount = 5;
+                if (message.Headers.Contains("includedReleasePathIds"))
                 {
-                    dynamic stage = new ExpandoObject();
-                    release.stages.Add(stage);
-                    stage.id = stageData.Id;
-                    stage.name = stageData.Name;
-                    stage.rank = stageData.Rank;
-                    var environmentData = data.Environments.First(env => env.Id == stageData.EnvironmentId);
-                    stage.environment = environmentData.Name;
+                    includedReleasePathIds = message.Headers.GetValues("includedReleasePathIds").First();
+                }
+                if (message.Headers.Contains("releaseCount"))
+                {
+                    releaseCount = Convert.ToInt32(message.Headers.GetValues("releaseCount").First());
+                }
 
-                    // Steps
-                    stage.steps = new List<dynamic>();
-                    var steps = data.ReleaseSteps
-                        .Where(step => step.StageId == stageData.Id && step.ReleaseId == releaseData.Id)
-                        .OrderBy(step => step.Attempt)
-                        .ThenBy(step => step.StepRank);
-                    foreach (var stepData in steps)
+                var data = GetData(includedReleasePathIds, releaseCount);
+                var releases = data.Releases;
+                foreach (var releaseData in releases)
+                {
+                    // release
+                    dynamic release = new ExpandoObject();
+                    result.releases.Add(release);
+                    release.name = releaseData.Name;
+                    release.status = releaseData.Status;
+                    release.createdOn = releaseData.CreatedOn;
+                    release.targetStageId = releaseData.TargetStageId;
+                    release.releasePathName = releaseData.ReleasePathName;
+                    release.stages = new List<dynamic>();
+
+                    // stages
+                    var stages = data.Stages
+                        .Where(stage => data.StageWorkflows.Any(wf => wf.StageId == stage.Id && wf.ReleaseId == releaseData.Id))
+                        .OrderBy(stage => stage.Rank);
+                    foreach (var stageData in stages)
                     {
-                        dynamic step = new ExpandoObject();
-                        stage.steps.Add(step);
-                        step.id = stepData.Id;
-                        step.name = stepData.Name;
-                        step.status = stepData.Status;
-                        step.rank = stepData.StepRank;
-                        step.createdOn = stepData.CreatedOn;
+                        dynamic stage = new ExpandoObject();
+                        release.stages.Add(stage);
+                        stage.id = stageData.Id;
+                        stage.name = stageData.Name;
+                        stage.rank = stageData.Rank;
+                        var environmentData = data.Environments.First(env => env.Id == stageData.EnvironmentId);
+                        stage.environment = environmentData.Name;
+
+                        // Steps
+                        stage.steps = new List<dynamic>();
+                        var steps = data.ReleaseSteps
+                            .Where(step => step.StageId == stageData.Id && step.ReleaseId == releaseData.Id)
+                            .OrderBy(step => step.Attempt)
+                            .ThenBy(step => step.StepRank);
+                        foreach (var stepData in steps)
+                        {
+                            dynamic step = new ExpandoObject();
+                            stage.steps.Add(step);
+                            step.id = stepData.Id;
+                            step.name = stepData.Name;
+                            step.status = stepData.Status;
+                            step.rank = stepData.StepRank;
+                            step.createdOn = stepData.CreatedOn;
+                        }
                     }
                 }
-            }
 
-            return result;
+                return result;
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateErrorResponse(HttpStatusCode.InternalServerError, ex.Message);
+            }
         }
 
-        private DataModel GetData(string includedReleasePathIds)
+        private DataModel GetData(string includedReleasePathIds, int releaseCount)
         {
             var data = new DataModel { LastRefresh = DateTime.Now };
             using (var connection = new SqlConnection(ConfigurationManager.ConnectionStrings["ReleaseManagement"].ConnectionString))
             {
                 var sql = @"
                     -- releases
-                    select	top 5 
+                    select	top {0} 
                             Id = release.Id,
                             Name = release.Name, 
 		                    Status = status.Name,
@@ -97,7 +109,7 @@ namespace RMDashboard.Controllers
 					on		releasepath.Id = release.ReleasePathId
 					join	ReleaseStatus status
                     on		status.Id = release.StatusId
-                    {0}
+                    {1}
                     order by CreatedOn desc
 
                     -- releaseworkflows
@@ -143,7 +155,7 @@ namespace RMDashboard.Controllers
                 {
                     whereClause = string.Format("where  release.ReleasePathId in ({0})", includedReleasePathIds);
                 }
-                sql = string.Format(sql, whereClause);
+                sql = string.Format(sql, releaseCount, whereClause);
 
                 using (var multi = connection.QueryMultiple(sql))
                 {

@@ -17,7 +17,6 @@
     <div class="title">Release Management Dashboard Configuration Panel</div>
     <div class="error" ng-show="hasError">
         <div><strong>Error: {{error.Message}}</strong></div>
-        <div>{{error.MessageDetail}}</div>
     </div>
     <div class="config-panel" ng-hide="hasError">
         <div class="field">
@@ -41,7 +40,6 @@
         <div class="field">
             <div>Refresh interval:</div>
             <select ng-model="config.refreshInterval">
-                <option value="5000">5 seconds</option>
                 <option value="10000">10 seconds</option>
                 <option value="15000">15 seconds</option>
                 <option value="20000">20 seconds</option>
@@ -54,6 +52,15 @@
                 <option value="60000">1 minute</option>
                 <option value="120000">2 minutes</option>
                 <option value="300000">5 minutes</option>
+            </select>
+        </div>
+        <div class="field">
+            <div>Number of releases to show:</div>
+            <select ng-model="config.releaseCount">
+                <option value="1">1</option>
+                <option value="5">5</option>
+                <option value="10">10</option>
+                <option value="15">15</option>
             </select>
         </div>
         <div class="field">

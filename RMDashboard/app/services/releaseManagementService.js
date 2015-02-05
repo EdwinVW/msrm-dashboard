@@ -17,7 +17,10 @@ rmDashboardApp.factory('releaseManagementService', ['$http', 'configService', fu
 
             // add header with releasepathids to include in the query
             if (config) {
-                req.headers = { 'includedReleasePathIds': config.includedReleasePaths.toString() };
+                req.headers = {
+                    includedReleasePathIds: config.includedReleasePaths.toString(),
+                    releaseCount: config.releaseCount
+                };
             }
 
             // execute request
