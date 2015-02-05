@@ -11,6 +11,9 @@ using Dapper;
 
 namespace RMDashboard.Controllers
 {
+    /// <summary>
+    /// WebAPI controller that retreives all dashboard data.
+    /// </summary>
     public class ReleasesController : ApiController
     {
         // GET: api/release
@@ -22,7 +25,7 @@ namespace RMDashboard.Controllers
 
             try
             {
-                // determine ReleasePathIds to include based on HTTP header
+                // determine data-filters based on HTTP headers
                 string includedReleasePathIds = null;
                 int releaseCount = 5;
                 if (message.Headers.Contains("includedReleasePathIds"))
@@ -34,8 +37,11 @@ namespace RMDashboard.Controllers
                     releaseCount = Convert.ToInt32(message.Headers.GetValues("releaseCount").First());
                 }
 
+                // retreive the data
                 var data = GetData(includedReleasePathIds, releaseCount);
                 var releases = data.Releases;
+
+                // build response datastructure (will be serialized to JSON automatically)
                 foreach (var releaseData in releases)
                 {
                     // release
@@ -157,6 +163,7 @@ namespace RMDashboard.Controllers
                 }
                 sql = string.Format(sql, releaseCount, whereClause);
 
+                // query database
                 using (var multi = connection.QueryMultiple(sql))
                 {
                     data.Releases = multi.Read<Release>().ToList();

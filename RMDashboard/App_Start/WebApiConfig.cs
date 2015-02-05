@@ -13,7 +13,6 @@ namespace RMDashboard
             // Web API configuration and services
             var json = GlobalConfiguration.Configuration.Formatters.JsonFormatter;
             json.SerializerSettings.Formatting = Formatting.Indented;
-            //json.SerializerSettings.PreserveReferencesHandling = PreserveReferencesHandling.All;
             json.SerializerSettings.DateTimeZoneHandling = DateTimeZoneHandling.Utc;
             json.SerializerSettings.DateFormatHandling = DateFormatHandling.IsoDateFormat;
 
@@ -22,8 +21,7 @@ namespace RMDashboard
 
             config.Routes.MapHttpRoute(
                 name: "DefaultApi",
-                routeTemplate: "api/{controller}/{teamId}",
-                defaults: new { teamId = RouteParameter.Optional }
+                routeTemplate: "api/{controller}"
             );
         }
     }

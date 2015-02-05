@@ -11,6 +11,9 @@ using Dapper;
 
 namespace RMDashboard.Controllers
 {
+    /// <summary>
+    /// WebAPI controller that retreives the releasepaths defined in RM.
+    /// </summary>
     public class ReleasePathsController : ApiController
     {
         // GET: api/releasepath
