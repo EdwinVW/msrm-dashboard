@@ -10,7 +10,7 @@ rmDashboardApp.controller('configController', ['$scope', 'releaseManagementServi
     $scope.config = {
         title: 'Release Management Dashboard',
         autoRefresh: true,
-        refreshInterval: 10000,
+        refreshInterval: 300000,
         releaseCount: 5,
         theme: 'dark',
         includedReleasePaths: []
