@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Web;
 
 namespace RMDashboard.Controllers
 {
@@ -13,6 +11,7 @@ namespace RMDashboard.Controllers
         public List<Stage> Stages;
         public List<Environment> Environments;
         public List<Step> ReleaseSteps;
+        public List<Component> ReleaseComponents;
     }
 
     public class Release
@@ -68,5 +67,13 @@ namespace RMDashboard.Controllers
         public int Id;
         public string Name;
         public string Description;
+    }
+
+    public class Component
+    {
+        public int ReleaseId;
+        public string TeamProject;
+        public string BuildDefinition;
+        public string Build;
     }
 }
