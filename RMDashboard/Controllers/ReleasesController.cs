@@ -28,6 +28,7 @@ namespace RMDashboard.Controllers
                 // determine data-filters based on HTTP headers
                 string includedReleasePathIds = null;
                 int releaseCount = 5;
+                bool showComponents = true;
                 if (message.Headers.Contains("includedReleasePathIds"))
                 {
                     includedReleasePathIds = message.Headers.GetValues("includedReleasePathIds").First();
@@ -35,6 +36,10 @@ namespace RMDashboard.Controllers
                 if (message.Headers.Contains("releaseCount"))
                 {
                     releaseCount = Convert.ToInt32(message.Headers.GetValues("releaseCount").First());
+                }
+                if (message.Headers.Contains("showComponents"))
+                {
+                    showComponents = Convert.ToBoolean(message.Headers.GetValues("showComponents").First());
                 }
 
                 // retreive the data
@@ -88,15 +93,18 @@ namespace RMDashboard.Controllers
                     }
 
                     // components
-                    var components = data.ReleaseComponents
-                        .Where(c => c.ReleaseId == releaseData.Id)
-                        .OrderBy(c => c.BuildDefinition);
+                    if (showComponents)
+                    {                        
+                        var components = data.ReleaseComponents
+                            .Where(c => c.ReleaseId == releaseData.Id)
+                            .OrderBy(c => c.BuildDefinition);
 
-                    foreach (var componentData in components)
-                    {
-                        dynamic component = new ExpandoObject();
-                        release.components.Add(component);
-                        component.Build = componentData.Build;
+                        foreach (var componentData in components)
+                        {
+                            dynamic component = new ExpandoObject();
+                            release.components.Add(component);
+                            component.build = componentData.Build;
+                        }
                     }
                 }
 
