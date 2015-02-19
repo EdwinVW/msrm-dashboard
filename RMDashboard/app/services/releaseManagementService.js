@@ -19,7 +19,8 @@ rmDashboardApp.factory('releaseManagementService', ['$http', 'configService', fu
             if (config) {
                 req.headers = {
                     includedReleasePathIds: config.includedReleasePaths.toString(),
-                    releaseCount: config.releaseCount
+                    releaseCount: config.releaseCount,
+                    showComponents: config.showComponents
                 };
             }
 

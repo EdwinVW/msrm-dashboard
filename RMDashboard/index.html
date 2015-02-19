@@ -29,6 +29,10 @@
                 <div class="name">{{release.name}} - {{release.status}}</div>
                 <hr class="status-bar" release-status-style />
                 <div class="date">Started on: {{release.createdOn | date:'dd-MM-yyyy HH:mm:ss'}}</div>
+                <div class="date" ng-show="release.components.length>0">
+                    Components:
+                    <div ng-repeat="component in release.components" style="display: inline">{{component.build}}{{$last ? '' : ', '}}</div>
+                </div>
                 <div class="date">Release Path: {{release.releasePathName}}</div>
                 <div ng-repeat="stage in release.stages" class="pipeline">
                     <div class="stage">
@@ -37,7 +41,7 @@
                         <div>{{stage.environment}}</div>
                         <div ng-repeat="step in stage.steps" class="step" step-status-style>
                             <div><strong>{{step.name}}</strong></div>
-                            <div>Started: {{step.createdOn | date:'hh:mm:ss'}}</div>
+                            <div>Started: {{step.createdOn | date:'dd-MM-yyyy HH:mm:ss'}}</div>
                             <div>Status: {{step.status}}</div>
                         </div>
                     </div>

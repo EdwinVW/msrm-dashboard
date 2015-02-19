@@ -28,6 +28,7 @@ namespace RMDashboard.Controllers
                 // determine data-filters based on HTTP headers
                 string includedReleasePathIds = null;
                 int releaseCount = 5;
+                bool showComponents = true;
                 if (message.Headers.Contains("includedReleasePathIds"))
                 {
                     includedReleasePathIds = message.Headers.GetValues("includedReleasePathIds").First();
@@ -35,6 +36,10 @@ namespace RMDashboard.Controllers
                 if (message.Headers.Contains("releaseCount"))
                 {
                     releaseCount = Convert.ToInt32(message.Headers.GetValues("releaseCount").First());
+                }
+                if (message.Headers.Contains("showComponents"))
+                {
+                    showComponents = Convert.ToBoolean(message.Headers.GetValues("showComponents").First());
                 }
 
                 // retreive the data
@@ -53,7 +58,8 @@ namespace RMDashboard.Controllers
                     release.targetStageId = releaseData.TargetStageId;
                     release.releasePathName = releaseData.ReleasePathName;
                     release.stages = new List<dynamic>();
-
+                    release.components = new List<dynamic>();
+                    
                     // stages
                     var stages = data.Stages
                         .Where(stage => data.StageWorkflows.Any(wf => wf.StageId == stage.Id && wf.ReleaseId == releaseData.Id))
@@ -83,6 +89,21 @@ namespace RMDashboard.Controllers
                             step.status = stepData.Status;
                             step.rank = stepData.StepRank;
                             step.createdOn = stepData.CreatedOn;
+                        }
+                    }
+
+                    // components
+                    if (showComponents)
+                    {                        
+                        var components = data.ReleaseComponents
+                            .Where(c => c.ReleaseId == releaseData.Id)
+                            .OrderBy(c => c.BuildDefinition);
+
+                        foreach (var componentData in components)
+                        {
+                            dynamic component = new ExpandoObject();
+                            release.components.Add(component);
+                            component.build = componentData.Build;
                         }
                     }
                 }
@@ -153,7 +174,18 @@ namespace RMDashboard.Controllers
                     join	StageStepType steptype
                     on		steptype.Id = step.StepTypeId
                     join	ReleaseStepStatus status
-                    on		status.Id = step.StatusId";
+                    on		status.Id = step.StatusId
+                    
+                    -- components for selected releases
+                    select  ReleaseId = release.Id,
+                            TeamProject = releaseComponent.TeamProject,
+                            BuildDefinition = releaseComponent.BuildDefinition,
+                            Build = releaseComponent.Build
+                    from    ReleaseComponentV2 releaseComponent
+                    join    (SELECT TOP {0} Id 
+                                FROM ReleaseV2 release {1} 
+                                Order By release.CreatedOn desc) release
+                    on      release.Id = releaseComponent.ReleaseId";
 
                 // add where clause for filtering on ReleasePathId
                 string whereClause = null;
@@ -171,6 +203,7 @@ namespace RMDashboard.Controllers
                     data.Stages = multi.Read<Stage>().ToList();
                     data.Environments = multi.Read<Environment>().ToList();
                     data.ReleaseSteps = multi.Read<Step>().ToList();
+                    data.ReleaseComponents = multi.Read<Component>().ToList();
                 }
             }
             return data;

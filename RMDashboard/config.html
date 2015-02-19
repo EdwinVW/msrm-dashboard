@@ -33,10 +33,7 @@
         </div>
         <div class="field">
             <div>Auto refresh:</div>
-            <select ng-model="config.autoRefresh">
-                <option value="true">Yes</option>
-                <option value="false">No</option>
-            </select>
+            <select ng-model="config.autoRefresh" ng-options="o.v as o.n for o in [{ n: 'No', v: false }, { n: 'Yes', v: true }]"></select>
         </div>
         <div class="field">
             <div>Refresh interval:</div>
@@ -57,6 +54,10 @@
                 <option value="1200000">20 minutes</option>
                 <option value="1800000">30 minutes</option>
             </select>
+        </div>
+        <div class="field">
+            <div>Show components</div>
+            <select ng-model="config.showComponents" ng-options="o.v as o.n for o in [{ n: 'No', v: false }, { n: 'Yes', v: true }]"></select>
         </div>
         <div class="field">
             <div>Number of releases to show:</div>
