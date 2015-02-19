@@ -1,1 +1,3 @@
-﻿var rmDashboardApp = angular.module('rmDashboardApp', []);
+﻿(function (angular) {
+    angular.module('rmDashboardApp', []);
+})(angular);

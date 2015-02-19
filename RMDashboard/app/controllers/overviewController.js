@@ -1,16 +1,23 @@
-﻿'use strict';
+﻿(function (angular) {
+    'use strict';
 
-rmDashboardApp
-    .controller('overviewController', ['$scope', '$interval', 'releaseManagementService', 'configService',
-        function ($scope, $interval, releaseManagementService, configService) {
+    function OverviewController($interval, releaseManagementService, configService) {
+        var vm = this;
+        var refreshInterval = 20000;
+        var autoRefresh = true;
 
-            // initialize fields
-            $scope.title = "Release Management Dashboard";
-            $scope.theme = 'dark';
-            var refreshInterval = 20000;
-            var autoRefresh = true;
+        vm.title = "Release Management Dashboard";
+        vm.theme = 'dark';
+        vm.loadData = loadData;
 
-            // load configuration
+        activate();
+
+        ////////////
+
+        /**
+        * Activates the controller
+        */
+        function activate() {
             var config = configService.loadConfig();
             if (config) {
                 $scope.title = config.title;
@@ -19,26 +26,34 @@ rmDashboardApp
                 autoRefresh = (config.autoRefresh == 'true');
             }
 
-            // load data
-            $scope.loadData = function () {
-                releaseManagementService.getReleases(function (err, data) {
-                    if (err) {
-                        $scope.hasError = true;
-                        $scope.error = err;
-                    }
-                    else {
-                        $scope.hasError = false;
-                        $scope.error = null;
-                        $scope.data = data;
-                    }
-                });
-            };
+            // Always load data initially when activated.
+            // After that, initiate the refresh using the given refresh time.
+            loadData();
 
-            // initial load
-            $scope.loadData();
-
-            // refresh
             if (autoRefresh) {
-                $interval(function () { $scope.loadData(); }, refreshInterval);
+                $interval(function () { loadData(); }, refreshInterval);
             }
-        }]);
+        }
+
+        /**
+        * Loads the data from the API
+        */
+        function loadData() {
+            releaseManagementService.getReleases(function (err, data) {
+                if (err) {
+                    $scope.hasError = true;
+                    $scope.error = err;
+                }
+                else {
+                    $scope.hasError = false;
+                    $scope.error = null;
+                    $scope.data = data;
+                }
+            });
+        };
+    }
+
+    OverviewController.$inject = ['$interval', 'releaseManagementService', 'configService'];
+
+    angular.module('rmDashboardApp').controller('overviewController', OverviewController);
+})(angular);

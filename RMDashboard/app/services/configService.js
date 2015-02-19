@@ -1,18 +1,34 @@
-﻿'use strict';
+﻿(function (angular,$) {
+    'use strict';
 
-rmDashboardApp.factory('configService', function () {
-    var cookieName = 'RM_DASHBOARD_CONFIG';
+    /**
+    * Loads and stores the configuration of the application
+    * from a cookie stored on the client computer
+    */
+    function configService() {
+        var cookieName = 'RM_DASHBOARD_CONFIG';
 
-    $.cookie.json = true;
+        $.cookie.json = true;
 
-    var configService = {
-        loadConfig: function () {
+        /**
+        * Load the configuration from the cookie on the client
+        */
+        function loadConfig() {
             return $.cookie(cookieName);
-        },
-        saveConfig: function(config){
+        }
+
+        /**
+        * Save the configuration in a cookie on the client
+        */
+        function saveConfig(config) {
             $.cookie(cookieName, config, { expires: 9999 });
         }
-    };
 
-    return configService;
-});
+        return {
+            saveConfig: saveConfig,
+            loadConfig: loadConfig
+        };
+    }
+
+    angular.module('rmDashboardApp').factory('configService', configService);
+})(angular,jQuery);
