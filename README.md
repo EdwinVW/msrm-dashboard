@@ -7,6 +7,7 @@ The dashboard shows the last 5 releases that were started on the RM server (the 
 ![Dashboard](dashboard.png "Dashboard")
 
 Per release, the stages are shown that are defined in the releasepath that was chosen when the release was started.
+Also the components that are being deployed within the release are shown.
 For every stage a block is shown with the name of the stage and the name of the corresponding environment. 
 Within each stage block, the steps that are executed within that stage are shown. 
 The stage that was chosen as target stage for the release is tagged with a bulls-eye icon in the top-left corner.
@@ -22,6 +23,7 @@ The following settings are available:
 - **Theme** : the color theme to use
 - **Auto refresh** : indication whether or not the page is automatically refreshed
 - **Refresh interval** : the interval to wait between every page refresh
+- **Show components** : indication whether or not to show the components being deployed
 - **Number of releases** : the number of releases to show on the dashboard
 - **Release paths** : the releasepaths to show on the dashboard (none selected means no filter)
 
@@ -38,6 +40,7 @@ The web.config contains the connection-string to connect to the database.
 The user used to connect to the database must have read-access to the following tables:
 
 - ReleaseV2
+- ReleaseV2Component
 - ReleaseStatus
 - ReleaseV2StageWorkflow
 - Stage
