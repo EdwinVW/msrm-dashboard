@@ -1,12 +1,11 @@
-﻿'use strict';
-rmDashboardApp
-    .directive('stepStatusStyle', function () {
-        var directive = {};
+﻿(function (angular) {
+    'use strict';
 
-        directive.restrict = 'A'; 
-
-        directive.link = function ($scope, element, attributes) {
-
+    /**
+    * This directive displays the status of a single step in the release process
+    */
+    function stepStatusStyle() {
+        function link($scope, element) {
             switch ($scope.step.status) {
                 case 'Pending':
                     element.addClass("pending");
@@ -29,5 +28,11 @@ rmDashboardApp
             }
         }
 
-        return directive;
-    })
+        return {
+            restrict: 'A',
+            link: link
+        };
+    }
+
+    angular.module('rmDashboardApp').directive('stepStatusStyle', stepStatusStyle);
+})(angular);

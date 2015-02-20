@@ -1,21 +1,21 @@
-﻿'use strict';
+﻿(function (angular) {
+    'use strict';
 
-rmDashboardApp.factory('releaseManagementService', ['$http', 'configService', function ($http, configService) {
-    var releaseManagementService = {
-
-        // get all release data
-        getReleases: function (callback) {
-
-            // initialize request
+    /**
+    * Talks to the API endpoint to retrieve information about releases
+    */
+    function releaseManagementService($http, configService) {
+        /**
+        * Retrieves a list of releases available on the release manager server
+        */
+        function getReleases(callback) {
             var req = {
                 method: 'GET',
                 url: '/api/releases',
             }
 
-            // load configuration
             var config = configService.loadConfig();
 
-            // add header with releasepathids to include in the query
             if (config) {
                 req.headers = {
                     includedReleasePathIds: config.includedReleasePaths.toString(),
@@ -24,27 +24,35 @@ rmDashboardApp.factory('releaseManagementService', ['$http', 'configService', fu
                 };
             }
 
-            // execute request
             $http(req)
-               .success(function (data, status, header, config) {
+               .success(function (data) {
                    callback(null, data);
                })
-               .error(function (data, status, header, config) {
-                   callback(data, null);
-               });
-        },
-
-        // get all available releasepaths
-        getReleasePaths: function (callback) {
-            $http.get('/api/releasepaths')
-               .success(function (data, status, header, config) {
-                   callback(null, data);
-               })
-               .error(function (data, status, header, config) {
+               .error(function (data) {
                    callback(data, null);
                });
         }
-    };
 
-    return releaseManagementService;
-}]);
+        /**
+        * Retrieves all release paths available on the release manager server
+        */
+        function getReleasePaths(callback ) {
+            $http.get('/api/releasepaths')
+               .success(function (data) {
+                   callback(null, data);
+               })
+               .error(function (data) {
+                   callback(data, null);
+               });
+        }
+
+        return {
+            getReleases: getReleases,
+            getReleasePaths: getReleasePaths
+        };
+    }
+
+    releaseManagementService.$inject = ['$http', 'configService'];
+
+    angular.module('rmDashboardApp').factory('releaseManagementService', releaseManagementService);
+})(angular);

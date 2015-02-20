@@ -1,12 +1,11 @@
-﻿'use strict';
-rmDashboardApp
-    .directive('releaseStatusStyle', function () {
-        var directive = {};
+﻿(function (angular) {
+    'use strict';
 
-        directive.restrict = 'A'; 
-
-        directive.link = function ($scope, element, attributes) {
-
+    /**
+    * This directive displays the status of a release
+    */
+    function releaseStatusStyle() {
+        function link($scope, element) {
             switch ($scope.release.status) {
                 case 'In Progress':
                     element.addClass("in-progress");
@@ -29,5 +28,11 @@ rmDashboardApp
             }
         }
 
-        return directive;
-    })
+        return {
+            restrict: 'A',
+            link: link
+        }
+    }
+
+    angular.module('rmDashboardApp').directive('releaseStatusStyle', releaseStatusStyle);
+})(angular);

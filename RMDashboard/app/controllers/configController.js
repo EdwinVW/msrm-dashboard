@@ -1,63 +1,80 @@
-﻿'use strict';
+﻿(function (angular) {
+    'use strict';
 
-rmDashboardApp.controller('configController', ['$scope', 'releaseManagementService', 'configService',
-    function ($scope, releaseManagementService, configService) {
+    /** 
+    * Controller to work with the application configuration
+    */
+    function ConfigController(releaseManagementService, configService) {
+        var vm = this;
 
-    // initialize list of available releasepaths
-    $scope.releasePaths = [];
+        vm.releasePaths = [];
+        vm.saveConfig = saveConfig;
+        vm.config = {
+            title: 'Release Management Dashboard',
+            autoRefresh: true,
+            showComponents: true,
+            refreshInterval: 300000,
+            releaseCount: 5,
+            theme: 'dark',
+            includedReleasePaths: []
+        };
 
-    // initialize configuration
-    $scope.config = {
-        title: 'Release Management Dashboard',
-        autoRefresh: true,
-        showComponents: true,
-        refreshInterval: 300000,
-        releaseCount: 5,
-        theme: 'dark',
-        includedReleasePaths: []
-    };
+        activate();
 
-    // load configuration
-    function loadConfig() {
-        var config = configService.loadConfig();
-        if (config) {
-            $scope.config = config;
-        }
-    };
+        ////////////
 
-    /// save the configuration
-    $scope.saveConfig = function () {
-        $scope.config.includedReleasePaths = [];
-        $scope.releasePaths.forEach(function (releasePath) {
-            if (releasePath.value) {
-                $scope.config.includedReleasePaths.push(releasePath.id);
+        /**
+        * Saves the configuration for the application
+        */
+        function saveConfig() {
+            vm.config.includedReleasePaths = [];
+            vm.releasePaths.forEach(function (releasePath) {
+                if (releasePath.value) {
+                    vm.config.includedReleasePaths.push(releasePath.id);
+                }
+            });
+            configService.saveConfig(vm.config);
+        };
+
+        /**
+        * Loads the configuration for the application
+        */
+        function loadConfig() {
+            var config = configService.loadConfig();
+            if (config) {
+                vm.config = config;
             }
-        });
-        configService.saveConfig($scope.config);
-    };
+        };
 
-    // load available releasepaths
-    releaseManagementService.getReleasePaths(function (err, data) {
-        if (err) {
-            $scope.hasError = true;
-            $scope.error = err;
-        }
-        else {
-            $scope.hasError = false;
-            $scope.error = null;
+        /**
+        * Activates the controller
+        */
+        function activate() {
+            releaseManagementService.getReleasePaths(function (err, data) {
+                if (err) {
+                    vm.hasError = true;
+                    vm.error = err;
+                }
+                else {
+                    vm.hasError = false;
+                    vm.error = null;
 
-            // load configuration
-            loadConfig();
+                    loadConfig();
 
-            // fill checkboxes based on configuration
-            data.forEach(function (releasePath) {
-                var include = ($scope.config.includedReleasePaths.indexOf(releasePath.id) > -1);
-                $scope.releasePaths.push({
-                    id: releasePath.id,
-                    name: releasePath.name,
-                    value: include
-                });
+                    data.forEach(function (releasePath) {
+                        var include = (vm.config.includedReleasePaths.indexOf(releasePath.id) > -1);
+                        vm.releasePaths.push({
+                            id: releasePath.id,
+                            name: releasePath.name,
+                            value: include
+                        });
+                    });
+                }
             });
         }
-    });
-}]);
+    }
+
+    ConfigController.$inject = ['releaseManagementService', 'configService'];
+
+    angular.module('rmDashboardApp').controller('configController', ConfigController);
+})(angular);
