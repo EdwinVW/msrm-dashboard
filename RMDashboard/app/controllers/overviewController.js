@@ -23,7 +23,7 @@
                 vm.title = config.title;
                 vm.theme = config.theme;
                 refreshInterval = config.refreshInterval;
-                autoRefresh = (config.autoRefresh == 'true');
+                autoRefresh = config.autoRefresh;
             }
 
             // Always load data initially when activated.

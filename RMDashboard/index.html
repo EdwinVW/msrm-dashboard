@@ -18,7 +18,7 @@
 </head>
 <body>
     <div>
-        <div class="title"><span>{{title}}</span><span ng-show="vm.team"> - {{vm.team}}</span></div>
+        <div class="title"><span>{{vm.title}}</span><span ng-show="vm.team"> - {{vm.team}}</span></div>
         <div class="menuitem"><a href="/config.html">Configure</a></div>
         <div class="error" ng-show="vm.hasError">
             <div><strong>Error: {{vm.error.Message}}</strong></div>
@@ -26,9 +26,9 @@
         <div ng-hide="hasError">
             <div class="refresh">Last refresh: {{vm.data.lastRefresh | date:'dd-MM-yyyy HH:mm:ss'}}</div>
             <div ng-repeat="release in vm.data.releases" class="release" ng-hide="vm.data.error">
-                <div class="name">{{vm.release.name}} - {{vm.release.status}}</div>
+                <div class="name">{{release.name}} - {{release.status}}</div>
                 <hr class="status-bar" release-status-style />
-                <div class="date">Started on: {{vm.release.createdOn | date:'dd-MM-yyyy HH:mm:ss'}}</div>
+                <div class="date">Started on: {{release.createdOn | date:'dd-MM-yyyy HH:mm:ss'}}</div>
                 <div class="date" ng-show="release.components.length>0">
                     Components:
                     <div ng-repeat="component in release.components" style="display: inline">{{component.build}}{{$last ? '' : ', '}}</div>
