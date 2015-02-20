@@ -27,13 +27,13 @@
         * Saves the configuration for the application
         */
         function saveConfig() {
-            $scope.config.includedReleasePaths = [];
-            $scope.releasePaths.forEach(function (releasePath) {
+            vm.config.includedReleasePaths = [];
+            vm.releasePaths.forEach(function (releasePath) {
                 if (releasePath.value) {
-                    $scope.config.includedReleasePaths.push(releasePath.id);
+                    vm.config.includedReleasePaths.push(releasePath.id);
                 }
             });
-            configService.saveConfig($scope.config);
+            configService.saveConfig(vm.config);
         };
 
         /**
@@ -42,7 +42,7 @@
         function loadConfig() {
             var config = configService.loadConfig();
             if (config) {
-                $scope.config = config;
+                vm.config = config;
             }
         };
 
@@ -52,18 +52,18 @@
         function activate() {
             releaseManagementService.getReleasePaths(function (err, data) {
                 if (err) {
-                    $scope.hasError = true;
-                    $scope.error = err;
+                    vm.hasError = true;
+                    vm.error = err;
                 }
                 else {
-                    $scope.hasError = false;
-                    $scope.error = null;
+                    vm.hasError = false;
+                    vm.error = null;
 
                     loadConfig();
 
                     data.forEach(function (releasePath) {
-                        var include = ($scope.config.includedReleasePaths.indexOf(releasePath.id) > -1);
-                        $scope.releasePaths.push({
+                        var include = (vm.config.includedReleasePaths.indexOf(releasePath.id) > -1);
+                        vm.releasePaths.push({
                             id: releasePath.id,
                             name: releasePath.name,
                             value: include

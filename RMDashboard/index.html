@@ -1,9 +1,9 @@
 ﻿<!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" ng-app="rmDashboardApp" ng-controller="overviewController">
+<html xmlns="http://www.w3.org/1999/xhtml" ng-app="rmDashboardApp" ng-controller="overviewController as vm">
 <head>
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>{{title}}</title>
-    <link href="assets/css/{{theme}}.css" rel="stylesheet" />
+    <title>{{vm.title}}</title>
+    <link href="assets/css/{{vm.theme}}.css" rel="stylesheet" />
     <script src="scripts/jquery-2.1.3.min.js"></script>
     <script src="scripts/jquery.cookie.js"></script>
     <script src="scripts/angular.min.js"></script>
@@ -18,17 +18,17 @@
 </head>
 <body>
     <div>
-        <div class="title"><span>{{title}}</span><span ng-show="team"> - {{team}}</span></div>
+        <div class="title"><span>{{title}}</span><span ng-show="vm.team"> - {{vm.team}}</span></div>
         <div class="menuitem"><a href="/config.html">Configure</a></div>
-        <div class="error" ng-show="hasError">
-            <div><strong>Error: {{error.Message}}</strong></div>
+        <div class="error" ng-show="vm.hasError">
+            <div><strong>Error: {{vm.error.Message}}</strong></div>
         </div>
         <div ng-hide="hasError">
-            <div class="refresh">Last refresh: {{data.lastRefresh | date:'dd-MM-yyyy HH:mm:ss'}}</div>
-            <div ng-repeat="release in data.releases" class="release" ng-hide="data.error">
-                <div class="name">{{release.name}} - {{release.status}}</div>
+            <div class="refresh">Last refresh: {{vm.data.lastRefresh | date:'dd-MM-yyyy HH:mm:ss'}}</div>
+            <div ng-repeat="release in vm.data.releases" class="release" ng-hide="vm.data.error">
+                <div class="name">{{vm.release.name}} - {{vm.release.status}}</div>
                 <hr class="status-bar" release-status-style />
-                <div class="date">Started on: {{release.createdOn | date:'dd-MM-yyyy HH:mm:ss'}}</div>
+                <div class="date">Started on: {{vm.release.createdOn | date:'dd-MM-yyyy HH:mm:ss'}}</div>
                 <div class="date" ng-show="release.components.length>0">
                     Components:
                     <div ng-repeat="component in release.components" style="display: inline">{{component.build}}{{$last ? '' : ', '}}</div>

@@ -20,8 +20,8 @@
         function activate() {
             var config = configService.loadConfig();
             if (config) {
-                $scope.title = config.title;
-                $scope.theme = config.theme;
+                vm.title = config.title;
+                vm.theme = config.theme;
                 refreshInterval = config.refreshInterval;
                 autoRefresh = (config.autoRefresh == 'true');
             }
@@ -41,13 +41,13 @@
         function loadData() {
             releaseManagementService.getReleases(function (err, data) {
                 if (err) {
-                    $scope.hasError = true;
-                    $scope.error = err;
+                    vm.hasError = true;
+                    vm.error = err;
                 }
                 else {
-                    $scope.hasError = false;
-                    $scope.error = null;
-                    $scope.data = data;
+                    vm.hasError = false;
+                    vm.error = null;
+                    vm.data = data;
                 }
             });
         };

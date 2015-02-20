@@ -54,5 +54,5 @@
 
     releaseManagementService.$inject = ['$http', 'configService'];
 
-    angular.module('rmDashboardApp').factory('releaseManagmentService', releaseManagementService);
+    angular.module('rmDashboardApp').factory('releaseManagementService', releaseManagementService);
 })(angular);
