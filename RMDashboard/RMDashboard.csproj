@@ -107,13 +107,16 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\WebApiConfig.cs" />
-    <Compile Include="Controllers\DataModel.cs" />
+    <Compile Include="Models\DataModel.cs" />
     <Compile Include="Controllers\ReleasePathsController.cs" />
     <Compile Include="Controllers\ReleasesController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Repositories\IReleaseRepository.cs" />
+    <Compile Include="Repositories\ReleaseRepository.cs" />
+    <Compile Include="Validators\IncludedReleasePathIdsValidator.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />
