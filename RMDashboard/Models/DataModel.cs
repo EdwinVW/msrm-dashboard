@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace RMDashboard.Controllers
+namespace RMDashboard.Models
 {
     public class DataModel
     {

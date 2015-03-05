@@ -8,6 +8,9 @@ using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 using Dapper;
+using RMDashboard.Models;
+using RMDashboard.Repositories;
+using RMDashboard.Validators;
 
 namespace RMDashboard.Controllers
 {
@@ -16,6 +19,18 @@ namespace RMDashboard.Controllers
     /// </summary>
     public class ReleasesController : ApiController
     {
+        private IReleaseRepository _releaseRepository;
+
+        public ReleasesController() : this(new ReleaseRepository())
+        {
+        }
+
+        public ReleasesController(IReleaseRepository releaseRepository)
+        {
+            if (releaseRepository == null) throw new ArgumentNullException("releaseRepository");
+            _releaseRepository = releaseRepository;
+        }
+
         // GET: api/release
         public object Get(HttpRequestMessage message)
         {
@@ -42,23 +57,21 @@ namespace RMDashboard.Controllers
                     showComponents = Convert.ToBoolean(message.Headers.GetValues("showComponents").First());
                 }
 
+                if (!IncludedReleasePathIdsValidator.IsValidIncludedReleasePathIds(includedReleasePathIds))
+                {
+                    return Request.CreateErrorResponse(HttpStatusCode.BadRequest, "Invalid argument includedReleasePathIds");
+                }
+
                 // retreive the data
-                var data = GetData(includedReleasePathIds, releaseCount);
+                var data = _releaseRepository.GetReleaseData(includedReleasePathIds, releaseCount);
                 var releases = data.Releases;
 
                 // build response datastructure (will be serialized to JSON automatically)
                 foreach (var releaseData in releases)
                 {
                     // release
-                    dynamic release = new ExpandoObject();
+                    dynamic release = CreateRelease(releaseData);
                     result.releases.Add(release);
-                    release.name = releaseData.Name;
-                    release.status = releaseData.Status;
-                    release.createdOn = releaseData.CreatedOn;
-                    release.targetStageId = releaseData.TargetStageId;
-                    release.releasePathName = releaseData.ReleasePathName;
-                    release.stages = new List<dynamic>();
-                    release.components = new List<dynamic>();
                     
                     // stages
                     var stages = data.Stages
@@ -66,13 +79,8 @@ namespace RMDashboard.Controllers
                         .OrderBy(stage => stage.Rank);
                     foreach (var stageData in stages)
                     {
-                        dynamic stage = new ExpandoObject();
+                        dynamic stage = CreateStage(stageData, data.Environments);
                         release.stages.Add(stage);
-                        stage.id = stageData.Id;
-                        stage.name = stageData.Name;
-                        stage.rank = stageData.Rank;
-                        var environmentData = data.Environments.First(env => env.Id == stageData.EnvironmentId);
-                        stage.environment = environmentData.Name;
 
                         // Steps
                         stage.steps = new List<dynamic>();
@@ -82,13 +90,8 @@ namespace RMDashboard.Controllers
                             .ThenBy(step => step.StepRank);
                         foreach (var stepData in steps)
                         {
-                            dynamic step = new ExpandoObject();
+                            dynamic step = CreateStep(stepData);
                             stage.steps.Add(step);
-                            step.id = stepData.Id;
-                            step.name = stepData.Name;
-                            step.status = stepData.Status;
-                            step.rank = stepData.StepRank;
-                            step.createdOn = stepData.CreatedOn;
                         }
                     }
 
@@ -116,97 +119,43 @@ namespace RMDashboard.Controllers
             }
         }
 
-        private DataModel GetData(string includedReleasePathIds, int releaseCount)
+        private static dynamic CreateRelease(Release releaseData)
         {
-            var data = new DataModel { LastRefresh = DateTime.Now };
-            using (var connection = new SqlConnection(ConfigurationManager.ConnectionStrings["ReleaseManagement"].ConnectionString))
-            {
-                var sql = @"
-                    -- releases
-                    select	top {0} 
-                            Id = release.Id,
-                            Name = release.Name, 
-		                    Status = status.Name,
-                            CreatedOn = release.CreatedOn,
-                            TargetStageId = release.TargetStageId,
-							ReleasePathId = release.ReleasePathId,
-							ReleasePathName = releasepath.Name
-                    from	ReleaseV2 release
-                    join	ReleasePath releasepath
-					on		releasepath.Id = release.ReleasePathId
-					join	ReleaseStatus status
-                    on		status.Id = release.StatusId
-                    {1}
-                    order by CreatedOn desc
+            dynamic release = new ExpandoObject();
+            release.name = releaseData.Name;
+            release.status = releaseData.Status;
+            release.createdOn = releaseData.CreatedOn;
+            release.targetStageId = releaseData.TargetStageId;
+            release.releasePathName = releaseData.ReleasePathName;
+            release.stages = new List<dynamic>();
+            release.components = new List<dynamic>();
 
-                    -- releaseworkflows
-                    select	Id, ReleaseId, StageId
-                    from	ReleaseV2StageWorkflow
+            return release;
+        }
 
-                    -- stages
-                    select	Id = stage.Id, 
-                            Name = stagetype.Name, 
-                            EnvironmentId = stage.EnvironmentId, 
-                            Rank = stage.Rank, 
-                            IsDeleted = stage.IsDeleted
-                    from	Stage stage
-                    join	StageType stagetype
-                    on		stagetype.Id = stage.StageTypeId
+        private static dynamic CreateStage(Stage stageData, List<Models.Environment> environments)
+        {
+            dynamic stage = new ExpandoObject();
+            stage.id = stageData.Id;
+            stage.name = stageData.Name;
+            stage.rank = stageData.Rank;
 
-                    -- environments / servers
-                    select	Id = env.Id, 
-		                    Name = env.Name
-                    from	Environment env
+            var environmentData = environments.First(env => env.Id == stageData.EnvironmentId);
+            stage.environment = environmentData.Name;
 
-                    -- releasesteps
-                    select	Id = step.Id,
-		                    Name = steptype.Name,
-		                    Status = status.Name, 
-		                    ReleaseId = step.ReleaseId,
-		                    StageId = step.StageId,
-                            StepRank = step.StepRank,
-		                    StageRank = step.StageRank,
-		                    EnvironmentId = step.EnvironmentId,
-		                    Attempt = step.TrialNumber,
-                            CreatedOn = step.CreatedOn,
-                            ModifiedOn = step.ModifiedOn
-                    from	ReleaseV2Step step
-                    join	StageStepType steptype
-                    on		steptype.Id = step.StepTypeId
-                    join	ReleaseStepStatus status
-                    on		status.Id = step.StatusId
-                    
-                    -- components for selected releases
-                    select  ReleaseId = release.Id,
-                            TeamProject = releaseComponent.TeamProject,
-                            BuildDefinition = releaseComponent.BuildDefinition,
-                            Build = releaseComponent.Build
-                    from    ReleaseComponentV2 releaseComponent
-                    join    (SELECT TOP {0} Id 
-                                FROM ReleaseV2 release {1} 
-                                Order By release.CreatedOn desc) release
-                    on      release.Id = releaseComponent.ReleaseId";
+            return stage;
+        }
 
-                // add where clause for filtering on ReleasePathId
-                string whereClause = null;
-                if (!string.IsNullOrEmpty(includedReleasePathIds))
-                {
-                    whereClause = string.Format("where  release.ReleasePathId in ({0})", includedReleasePathIds);
-                }
-                sql = string.Format(sql, releaseCount, whereClause);
+        private static dynamic CreateStep(Step stepData)
+        {
+            dynamic step = new ExpandoObject();
+            step.id = stepData.Id;
+            step.name = stepData.Name;
+            step.status = stepData.Status;
+            step.rank = stepData.StepRank;
+            step.createdOn = stepData.CreatedOn;
 
-                // query database
-                using (var multi = connection.QueryMultiple(sql))
-                {
-                    data.Releases = multi.Read<Release>().ToList();
-                    data.StageWorkflows = multi.Read<StageWorkflow>().ToList();
-                    data.Stages = multi.Read<Stage>().ToList();
-                    data.Environments = multi.Read<Environment>().ToList();
-                    data.ReleaseSteps = multi.Read<Step>().ToList();
-                    data.ReleaseComponents = multi.Read<Component>().ToList();
-                }
-            }
-            return data;
+            return step;
         }
     }
 }

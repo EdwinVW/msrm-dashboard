@@ -55,10 +55,11 @@ The WebAPI exposes 2 resources:
 - **/api/releases** : the data that is presented on the dashboard
 - **/api/releasepaths** : the list of releasepaths defined in RM (used on the configuration panel)
 
-When doing a GET request on /api/releases, two optional headers can be included in the request:
+When doing a GET request on /api/releases, three optional headers can be included in the request:
 
 - **includedReleasePathIds** : a comma-separated list (without spaces) of releasepath Ids to include in the dashboard
 - **releaseCount** : the number of releases to show in the dashboard
+- **showComponents** : indication if the released components should be displayed on the dashboard
 
 ## Compatibility
 The dashboard is currently only tested with Release Management 2013 Update 4 and is only implemented for the "vNext" functionality in RM. 
