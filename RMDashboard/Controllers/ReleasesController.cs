@@ -11,6 +11,8 @@ using Dapper;
 using RMDashboard.Models;
 using RMDashboard.Repositories;
 using RMDashboard.Validators;
+using System.Reflection;
+using System.Diagnostics;
 
 namespace RMDashboard.Controllers
 {
@@ -20,6 +22,8 @@ namespace RMDashboard.Controllers
     public class ReleasesController : ApiController
     {
         private IReleaseRepository _releaseRepository;
+
+        private const string URL_RELEASE_EXPLORER_KEY = "UrlReleaseExplorer";
 
         public ReleasesController() : this(new ReleaseRepository())
         {
@@ -36,6 +40,8 @@ namespace RMDashboard.Controllers
         {
             dynamic result = new ExpandoObject();
             result.lastRefresh = DateTime.Now;
+            result.urlReleaseExplorer = ConfigurationManager.AppSettings[URL_RELEASE_EXPLORER_KEY];
+            result.version = GetApplicationVersion();
             result.releases = new List<dynamic>();
 
             try
@@ -157,5 +163,12 @@ namespace RMDashboard.Controllers
 
             return step;
         }
+        private static dynamic GetApplicationVersion()
+        {
+            var assembly = Assembly.GetExecutingAssembly();
+            var fileVersionInfo = FileVersionInfo.GetVersionInfo(assembly.Location);
+            return fileVersionInfo.FileVersion;
+        }
+
     }
 }

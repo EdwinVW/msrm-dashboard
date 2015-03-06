@@ -19,7 +19,7 @@
 <body>
     <div>
         <div class="title"><span>{{vm.title}}</span><span ng-show="vm.team"> - {{vm.team}}</span></div>
-        <div class="menuitem"><a href="/config.html">Configure</a></div>
+        <div class="menuitem"><a target="_blank" href="{{vm.data.urlReleaseExplorer}}">Approvals</a><a href="/config.html">Configure</a></div>
         <div class="error" ng-show="vm.hasError">
             <div><strong>Error: {{vm.error.Message}}</strong></div>
         </div>
@@ -49,6 +49,7 @@
                 </div>
             </div>
         </div>
+        <div class="application-information">Release Management Dashboard - {{vm.data.version}}</div>
     </div>
 </body>
 </html>

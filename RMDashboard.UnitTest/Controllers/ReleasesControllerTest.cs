@@ -390,6 +390,44 @@ namespace RMDashboard.UnitTest.Controllers
         }
 
         [TestMethod]
+        public void Get_ValidRequest_VersionReturned()
+        {
+            //Arrange
+            var request = new GetReleasesHttpRequestMessageBuilder().Build();
+            var dataModel = new DataModelBuilder().WithDefaultDataSet().Build();
+
+            _releaseRepositoryMock.Setup((stub) => stub.GetReleaseData(It.IsAny<string>(), It.IsAny<int>()))
+                .Returns(dataModel);
+
+            //Act
+            dynamic result = _sut.Get(request);
+
+            //Assert
+            Assert.IsNotNull(result, "Unexpected result");
+            Assert.IsNotNull(result.version, "Unexpected version");
+            Assert.AreNotEqual("", result.version, "Unexpected version");
+        }
+
+        [TestMethod]
+        public void Get_ValidRequest_UrlReleaseExplorerReturned()
+        {
+            //Arrange
+            var request = new GetReleasesHttpRequestMessageBuilder().Build();
+            var dataModel = new DataModelBuilder().WithDefaultDataSet().Build();
+
+            _releaseRepositoryMock.Setup((stub) => stub.GetReleaseData(It.IsAny<string>(), It.IsAny<int>()))
+                .Returns(dataModel);
+
+            //Act
+            dynamic result = _sut.Get(request);
+
+            //Assert
+            Assert.IsNotNull(result, "Unexpected result");
+            Assert.IsNotNull(result.urlReleaseExplorer, "Unexpected url Release Explorer");
+            Assert.AreNotEqual("", result.urlReleaseExplorer, "Unexpected url Release Explorer");
+        } 
+
+        [TestMethod]
         public void Get_InvalidIncludedReleasePathIdsHeaderSpecified_BadRequestStatusReturned()
         {
             //Arrange
