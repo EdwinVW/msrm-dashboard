@@ -18,7 +18,8 @@ namespace RMDashboard.Repositories
                     select	Id, 
                             Name, 
                             Description
-                    from    ReleasePath";
+                    from    ReleasePath
+                    where   IsDeleted = 0";
                 return connection.Query<ReleasePath>(sql).ToList();
             }
         }
