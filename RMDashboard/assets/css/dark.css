@@ -194,3 +194,7 @@ body {
 .field {
     margin: 10px;
 }
+
+.approver{
+    font-style: italic;
+}

@@ -157,6 +157,8 @@ namespace RMDashboard.Controllers
             dynamic step = new ExpandoObject();
             step.id = stepData.Id;
             step.name = stepData.Name;
+            step.isAutomated = stepData.IsAutomated;
+            step.approver = stepData.Approver;
             step.status = stepData.Status;
             step.rank = stepData.StepRank;
             step.createdOn = stepData.CreatedOn;

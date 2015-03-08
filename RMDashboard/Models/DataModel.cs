@@ -52,6 +52,8 @@ namespace RMDashboard.Models
         public int Id;
         public string Name;
         public string Status;
+        public bool IsAutomated;
+        public string Approver;
         public int ReleaseId;
         public int StageId;
         public int StepRank;

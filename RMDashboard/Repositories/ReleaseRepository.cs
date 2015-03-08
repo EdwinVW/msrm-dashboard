@@ -96,23 +96,32 @@ namespace RMDashboard.Repositories
                     from	Environment env
 
                     -- releasesteps
-                    select	Id = step.Id,
-		                    Name = steptype.Name,
-		                    Status = status.Name, 
-		                    ReleaseId = step.ReleaseId,
-		                    StageId = step.StageId,
-                            StepRank = step.StepRank,
-		                    StageRank = step.StageRank,
-		                    EnvironmentId = step.EnvironmentId,
-		                    Attempt = step.TrialNumber,
-                            CreatedOn = step.CreatedOn,
-                            ModifiedOn = step.ModifiedOn
-                    from	ReleaseV2Step step
-                    join	StageStepType steptype
-                    on		steptype.Id = step.StepTypeId
-                    join	ReleaseStepStatus status
-                    on		status.Id = step.StatusId
-                    where   step.ReleaseId in (SELECT Id FROM @ScopedReleases)
+                    select	    Id = step.Id,
+		                        Name = steptype.Name,
+		                        Status = status.Name, 
+                                IsAutomated = step.IsAutomated,
+                                CASE WHEN step.ApproverId IS NOT NULL
+                                    THEN [user].DisplayName
+                                    ELSE [group].Name
+                                END AS Approver,
+		                        ReleaseId = step.ReleaseId,
+		                        StageId = step.StageId,
+                                StepRank = step.StepRank,
+		                        StageRank = step.StageRank,
+		                        EnvironmentId = step.EnvironmentId,
+		                        Attempt = step.TrialNumber,
+                                CreatedOn = step.CreatedOn,
+                                ModifiedOn = step.ModifiedOn
+                    from	    ReleaseV2Step step
+                    join	    StageStepType steptype
+                    on		    steptype.Id = step.StepTypeId
+                    join	    ReleaseStepStatus status
+                    on		    status.Id = step.StatusId
+                    left join   [User] [user]
+                    on          step.ApproverId = [user].Id
+                    left join   SecurityGroup [group]
+                    on          step.ApproverGroupId = [group].Id
+                    where       step.ReleaseId in (SELECT Id FROM @ScopedReleases)
                     
                     -- components for selected releases
                     select  ReleaseId = releaseComponent.ReleaseId,
