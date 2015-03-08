@@ -43,6 +43,7 @@
                         <div ng-repeat="step in stage.steps" class="step" step-status-style>
                             <div><strong>{{step.name}}</strong></div>
                             <div>{{step.createdOn | date:'dd-MM-yyyy HH:mm:ss'}}</div>
+                            <div ng-hide="step.isAutomated" class="approver">{{step.approver}}</div>
                             <div>Status : {{step.status}}</div>
                         </div>
                     </div>

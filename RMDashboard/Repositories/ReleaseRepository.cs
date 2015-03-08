@@ -18,7 +18,8 @@ namespace RMDashboard.Repositories
                     select	Id, 
                             Name, 
                             Description
-                    from    ReleasePath";
+                    from    ReleasePath
+                    where   IsDeleted = 0";
                 return connection.Query<ReleasePath>(sql).ToList();
             }
         }
@@ -29,10 +30,37 @@ namespace RMDashboard.Repositories
 
             using (var connection = new SqlConnection(ConfigurationManager.ConnectionStrings["ReleaseManagement"].ConnectionString))
             {
-                var sql = @"
+                var sql = GenerateSQL(releaseCount, includedReleasePathIds);
+
+                // query database
+                using (var multi = connection.QueryMultiple(sql, new { numberOfReleasesToShow = releaseCount }))
+                {
+                    data.Releases = multi.Read<Release>().ToList();
+                    data.StageWorkflows = multi.Read<StageWorkflow>().ToList();
+                    data.Stages = multi.Read<Stage>().ToList();
+                    data.Environments = multi.Read<Models.Environment>().ToList();
+                    data.ReleaseSteps = multi.Read<Step>().ToList();
+                    data.ReleaseComponents = multi.Read<Component>().ToList();
+                }
+            }
+            return data;
+        }
+
+        private string GenerateSQL(int releaseCount, string includedReleasePathIds)
+        {
+            var sql = @"
+                    DECLARE @ScopedReleases TABLE
+                    (
+                       Id INT NOT NULL
+                    )
+
+                    INSERT INTO @ScopedReleases
+                    SELECT TOP {0} Id 
+                    FROM ReleaseV2 release {1} 
+                    Order By release.CreatedOn desc
+
                     -- releases
-                    select	top {0} 
-                            Id = release.Id,
+                    select	Id = release.Id,
                             Name = release.Name, 
 		                    Status = status.Name,
                             CreatedOn = release.CreatedOn,
@@ -44,12 +72,13 @@ namespace RMDashboard.Repositories
 					on		releasepath.Id = release.ReleasePathId
 					join	ReleaseStatus status
                     on		status.Id = release.StatusId
-                    {1}
+                    where   release.Id in (SELECT Id FROM @ScopedReleases)
                     order by CreatedOn desc
 
                     -- releaseworkflows
                     select	Id, ReleaseId, StageId
                     from	ReleaseV2StageWorkflow
+                    where   ReleaseId in (SELECT Id FROM @ScopedReleases)
 
                     -- stages
                     select	Id = stage.Id, 
@@ -67,54 +96,49 @@ namespace RMDashboard.Repositories
                     from	Environment env
 
                     -- releasesteps
-                    select	Id = step.Id,
-		                    Name = steptype.Name,
-		                    Status = status.Name, 
-		                    ReleaseId = step.ReleaseId,
-		                    StageId = step.StageId,
-                            StepRank = step.StepRank,
-		                    StageRank = step.StageRank,
-		                    EnvironmentId = step.EnvironmentId,
-		                    Attempt = step.TrialNumber,
-                            CreatedOn = step.CreatedOn,
-                            ModifiedOn = step.ModifiedOn
-                    from	ReleaseV2Step step
-                    join	StageStepType steptype
-                    on		steptype.Id = step.StepTypeId
-                    join	ReleaseStepStatus status
-                    on		status.Id = step.StatusId
+                    select	    Id = step.Id,
+		                        Name = steptype.Name,
+		                        Status = status.Name, 
+                                IsAutomated = step.IsAutomated,
+                                CASE WHEN step.ApproverId IS NOT NULL
+                                    THEN [user].DisplayName
+                                    ELSE [group].Name
+                                END AS Approver,
+		                        ReleaseId = step.ReleaseId,
+		                        StageId = step.StageId,
+                                StepRank = step.StepRank,
+		                        StageRank = step.StageRank,
+		                        EnvironmentId = step.EnvironmentId,
+		                        Attempt = step.TrialNumber,
+                                CreatedOn = step.CreatedOn,
+                                ModifiedOn = step.ModifiedOn
+                    from	    ReleaseV2Step step
+                    join	    StageStepType steptype
+                    on		    steptype.Id = step.StepTypeId
+                    join	    ReleaseStepStatus status
+                    on		    status.Id = step.StatusId
+                    left join   [User] [user]
+                    on          step.ApproverId = [user].Id
+                    left join   SecurityGroup [group]
+                    on          step.ApproverGroupId = [group].Id
+                    where       step.ReleaseId in (SELECT Id FROM @ScopedReleases)
                     
                     -- components for selected releases
-                    select  ReleaseId = release.Id,
+                    select  ReleaseId = releaseComponent.ReleaseId,
                             TeamProject = releaseComponent.TeamProject,
                             BuildDefinition = releaseComponent.BuildDefinition,
                             Build = releaseComponent.Build
                     from    ReleaseComponentV2 releaseComponent
-                    join    (SELECT TOP {0} Id 
-                                FROM ReleaseV2 release {1} 
-                                Order By release.CreatedOn desc) release
-                    on      release.Id = releaseComponent.ReleaseId";
+                    where   releaseComponent.ReleaseId in (SELECT Id FROM @ScopedReleases)";
 
-                // add where clause for filtering on ReleasePathId
-                string whereClause = null;
-                if (!string.IsNullOrEmpty(includedReleasePathIds))
-                {
-                    whereClause = string.Format("where  release.ReleasePathId in ({0})", includedReleasePathIds);
-                }
-                sql = string.Format(sql, releaseCount, whereClause);
-
-                // query database
-                using (var multi = connection.QueryMultiple(sql))
-                {
-                    data.Releases = multi.Read<Release>().ToList();
-                    data.StageWorkflows = multi.Read<StageWorkflow>().ToList();
-                    data.Stages = multi.Read<Stage>().ToList();
-                    data.Environments = multi.Read<Models.Environment>().ToList();
-                    data.ReleaseSteps = multi.Read<Step>().ToList();
-                    data.ReleaseComponents = multi.Read<Component>().ToList();
-                }
+            // add where clause for filtering on ReleasePathId
+            string whereClause = null;
+            if (!string.IsNullOrEmpty(includedReleasePathIds))
+            {
+                whereClause = string.Format("where  release.ReleasePathId in ({0})", includedReleasePathIds);
             }
-            return data;
+            sql = string.Format(sql, releaseCount, whereClause);
+            return sql;
         }
     }
 }

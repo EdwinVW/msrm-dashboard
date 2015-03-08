@@ -11,6 +11,7 @@ Also the components that are being deployed within the release are shown.
 For every stage a block is shown with the name of the stage and the name of the corresponding environment. 
 Within each stage block, the steps that are executed within that stage are shown. 
 The stage that was chosen as target stage for the release is tagged with a bulls-eye icon in the top-left corner.
+When a step is an approval step and it is not automated, the user or group that has to approve is shown.
 
 ## Approvals
 By clicking on the 'Approvals' link in the upper-right corner of the dashboard, the RM website for approvers is shown. 
@@ -43,16 +44,18 @@ The WebAPI collects the necessary data by querying the RM database.
 The web.config contains the connection-string to connect to the database and the URL to the RM website for approvers. 
 The user used to connect to the database must have read-access to the following tables:
 
+- Environment
+- ReleaseStatus
+- ReleaseStepStatus
 - ReleaseV2
 - ReleaseV2Component
-- ReleaseStatus
 - ReleaseV2StageWorkflow
-- Stage
-- StageType
-- Environment
 - ReleaseV2Step
+- SecurityGroup
+- Stage
 - StageStepType
-- ReleaseStepStatus
+- StageType
+- User
 
 The WebAPI exposes 2 resources:
 

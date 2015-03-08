@@ -472,6 +472,8 @@ namespace RMDashboard.UnitTest.Controllers
             Assert.AreEqual(expectedStep.Status, actualStep.status, "Unexpected status for stage with id {0}", expectedStep.Id);
             Assert.AreEqual(expectedStep.StepRank, actualStep.rank, "Unexpected rank for stage with id {0}", expectedStep.Id);
             Assert.AreEqual(expectedStep.CreatedOn, actualStep.createdOn, "Unexpected createdOn for stage with id {0}", expectedStep.Id);
+            Assert.AreEqual(expectedStep.Approver, actualStep.approver, "Unexpected approver for stage with id {0}", expectedStep.Id);
+            Assert.AreEqual(expectedStep.IsAutomated, actualStep.isAutomated, "Unexpected approver for stage with id {0}", expectedStep.Id);
         }
 
         internal static void AssertReleasesCollectionContainsRelease(List<dynamic> releases, Release expectedRelease)
