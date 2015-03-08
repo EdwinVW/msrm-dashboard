@@ -24,6 +24,13 @@ body {
     margin-left: 15px;
 }
 
+.application-information {
+    font-size: 14px;
+    margin-left: 15px;
+    text-align: center;
+    width: 100%;
+}
+
 .error {
     margin: 20px;
     color: #fff41f;
@@ -31,7 +38,10 @@ body {
 
 .menuitem {
     display: inline-block;
-    float:right;
+    float: right;
+}
+
+.menuitem a {    
     margin-right: 25px;
 }
 
