@@ -43,16 +43,18 @@ The WebAPI collects the necessary data by querying the RM database.
 The web.config contains the connection-string to connect to the database and the URL to the RM website for approvers. 
 The user used to connect to the database must have read-access to the following tables:
 
+- Environment
+- ReleaseStatus
+- ReleaseStepStatus
 - ReleaseV2
 - ReleaseV2Component
-- ReleaseStatus
 - ReleaseV2StageWorkflow
-- Stage
-- StageType
-- Environment
 - ReleaseV2Step
+- SecurityGroup
+- Stage
 - StageStepType
-- ReleaseStepStatus
+- StageType
+- User
 
 The WebAPI exposes 2 resources:
 
