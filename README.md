@@ -12,6 +12,10 @@ For every stage a block is shown with the name of the stage and the name of the 
 Within each stage block, the steps that are executed within that stage are shown. 
 The stage that was chosen as target stage for the release is tagged with a bulls-eye icon in the top-left corner.
 
+## Approvals
+By clicking on the 'Approvals' link in the upper-right corner of the dashboard, the RM website for approvers is shown. 
+The URL used for this link can be configured in the Web.config using the appSetting **'UrlReleaseExplorer'**.
+
 ## Configuration Panel
 By clicking the 'Configure' link in the upper-right corner of the dashboard, the configuration panel is shown: 
 
@@ -36,7 +40,7 @@ The cancel button will discard any configuration changes and return to the dashb
 The dashboard is built as an ASP.NET web-application that must be deployed to an IIS webserver.
 The application consists of an HTML5/Angular SPA "front-end" and an ASP.NET WebAPI back-end. 
 The WebAPI collects the necessary data by querying the RM database.
-The web.config contains the connection-string to connect to the database. 
+The web.config contains the connection-string to connect to the database and the URL to the RM website for approvers. 
 The user used to connect to the database must have read-access to the following tables:
 
 - ReleaseV2
