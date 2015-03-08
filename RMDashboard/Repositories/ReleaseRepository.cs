@@ -30,7 +30,7 @@ namespace RMDashboard.Repositories
 
             using (var connection = new SqlConnection(ConfigurationManager.ConnectionStrings["ReleaseManagement"].ConnectionString))
             {
-                var sql = GenerateSQL(includedReleasePathIds);
+                var sql = GenerateSQL(releaseCount, includedReleasePathIds);
 
                 // query database
                 using (var multi = connection.QueryMultiple(sql, new { numberOfReleasesToShow = releaseCount }))
@@ -46,7 +46,7 @@ namespace RMDashboard.Repositories
             return data;
         }
 
-        private string GenerateSQL(string includedReleasePathIds)
+        private string GenerateSQL(int releaseCount, string includedReleasePathIds)
         {
             var sql = @"
                     DECLARE @ScopedReleases TABLE
@@ -55,8 +55,8 @@ namespace RMDashboard.Repositories
                     )
 
                     INSERT INTO @ScopedReleases
-                    SELECT TOP @numberOfReleasesToShow Id 
-                    FROM ReleaseV2 release {0} 
+                    SELECT TOP {0} Id 
+                    FROM ReleaseV2 release {1} 
                     Order By release.CreatedOn desc
 
                     -- releases
@@ -128,7 +128,7 @@ namespace RMDashboard.Repositories
             {
                 whereClause = string.Format("where  release.ReleasePathId in ({0})", includedReleasePathIds);
             }
-            sql = string.Format(sql, whereClause);
+            sql = string.Format(sql, releaseCount, whereClause);
             return sql;
         }
     }
