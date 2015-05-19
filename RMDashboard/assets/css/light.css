@@ -198,3 +198,7 @@ body {
 .approver{
     font-style: italic;
 }
+
+.deploymentStep{
+    border-top: 2px solid #2b4055; 
+}

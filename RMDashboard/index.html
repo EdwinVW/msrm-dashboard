@@ -45,6 +45,11 @@
                             <div>{{step.createdOn | date:'dd-MM-yyyy HH:mm:ss'}}</div>
                             <div ng-hide="step.isAutomated" class="approver">{{step.approver}}</div>
                             <div>Status : {{step.status}}</div>
+                            <div ng-repeat="deploymentStep in step.deploymentSteps" class="deploymentStep">
+                                <div>{{deploymentStep.DateStarted | date:'HH:mm:ss'}}</div>
+                                <div>{{deploymentStep.Name}}</div>
+                                <div>{{deploymentStep.Status}}</div>
+                            </div>
                         </div>
                     </div>
                     <div class="stage-seperator" ng-class="{'last': $last}"></div>

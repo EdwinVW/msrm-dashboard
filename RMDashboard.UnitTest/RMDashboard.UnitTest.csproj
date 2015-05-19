@@ -78,6 +78,7 @@
     <Compile Include="TestHelpers\BuilderBase.cs" />
     <Compile Include="TestHelpers\ComponentBuilder.cs" />
     <Compile Include="TestHelpers\DataModelBuilder.cs" />
+    <Compile Include="TestHelpers\DeploymentStepBuilder.cs" />
     <Compile Include="TestHelpers\EnvironmentBuilder.cs" />
     <Compile Include="TestHelpers\GetReleasesHttpRequestMessageBuilder.cs" />
     <Compile Include="TestHelpers\ReleaseBuilder.cs" />

@@ -11,6 +11,7 @@ namespace RMDashboard.Models
         public List<Stage> Stages;
         public List<Environment> Environments;
         public List<Step> ReleaseSteps;
+        public List<DeploymentStep> DeploymentSteps;
         public List<Component> ReleaseComponents;
     }
 
@@ -77,5 +78,16 @@ namespace RMDashboard.Models
         public string TeamProject;
         public string BuildDefinition;
         public string Build;
+    }
+
+    public class DeploymentStep
+    {
+        public int ReleaseId;
+        public int StageId;
+        public int ReleaseStepId;
+        public string ActivityDisplayName;
+        public string Status;
+        public DateTime? DateStarted;
+        public DateTime? DateEnded;
     }
 }
