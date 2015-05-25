@@ -489,10 +489,10 @@ namespace RMDashboard.UnitTest.Controllers
 
         internal static void AssertAreDeploymentStepsEqual(DeploymentStep expectedDeploymentStep, dynamic actualDeploymentStep)
         {
-            Assert.AreEqual(expectedDeploymentStep.ActivityDisplayName, actualDeploymentStep.Name, "Unexpected name for deploymentstep");
-            Assert.AreEqual(expectedDeploymentStep.DateEnded, actualDeploymentStep.DateEnded, "Unexpected DateEnded for deploymentStep with name {0}", expectedDeploymentStep.ActivityDisplayName);
-            Assert.AreEqual(expectedDeploymentStep.DateStarted, actualDeploymentStep.DateStarted, "Unexpected DateStarted for deploymentStep with name {0}", expectedDeploymentStep.ActivityDisplayName);
-            Assert.AreEqual(expectedDeploymentStep.Status, actualDeploymentStep.Status, "Unexpected Status for deploymentStep with name {0}", expectedDeploymentStep.ActivityDisplayName);
+            Assert.AreEqual(expectedDeploymentStep.ActivityDisplayName, actualDeploymentStep.name, "Unexpected name for deploymentstep");
+            Assert.AreEqual(expectedDeploymentStep.DateEnded, actualDeploymentStep.dateEnded, "Unexpected DateEnded for deploymentStep with name {0}", expectedDeploymentStep.ActivityDisplayName);
+            Assert.AreEqual(expectedDeploymentStep.DateStarted, actualDeploymentStep.dateStarted, "Unexpected DateStarted for deploymentStep with name {0}", expectedDeploymentStep.ActivityDisplayName);
+            Assert.AreEqual(expectedDeploymentStep.Status, actualDeploymentStep.status, "Unexpected Status for deploymentStep with name {0}", expectedDeploymentStep.ActivityDisplayName);
         }
 
         internal static void AssertReleasesCollectionContainsRelease(List<dynamic> releases, Release expectedRelease)

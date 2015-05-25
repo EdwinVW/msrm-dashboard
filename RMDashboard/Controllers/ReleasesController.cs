@@ -167,10 +167,10 @@ namespace RMDashboard.Controllers
             foreach(var deploymentStep in deploymentSteps)
             {
                 dynamic deploymentStepResult = new ExpandoObject();
-                deploymentStepResult.Name = deploymentStep.ActivityDisplayName;
-                deploymentStepResult.DateEnded = deploymentStep.DateEnded;
-                deploymentStepResult.DateStarted = deploymentStep.DateStarted;
-                deploymentStepResult.Status = deploymentStep.Status;
+                deploymentStepResult.name = deploymentStep.ActivityDisplayName;
+                deploymentStepResult.dateEnded = deploymentStep.DateEnded;
+                deploymentStepResult.dateStarted = deploymentStep.DateStarted;
+                deploymentStepResult.status = deploymentStep.Status;
 
                 deploymentStepResultList.Add(deploymentStepResult);
             }

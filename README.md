@@ -48,6 +48,7 @@ The user used to connect to the database must have read-access to the following 
 - ReleaseStatus
 - ReleaseStepStatus
 - ReleaseV2
+- ReleaseV2ActivityLog
 - ReleaseV2Component
 - ReleaseV2StageWorkflow
 - ReleaseV2Step
