@@ -3,7 +3,7 @@
 
     function OverviewController($interval, releaseManagementService, configService) {
         var vm = this;
-        var refreshInterval = 90000;
+        var refreshInterval = 300000;
         var autoRefresh = true;
 
         vm.title = "Release Management Dashboard";
