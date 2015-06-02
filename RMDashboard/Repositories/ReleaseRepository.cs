@@ -40,6 +40,7 @@ namespace RMDashboard.Repositories
                     data.Stages = multi.Read<Stage>().ToList();
                     data.Environments = multi.Read<Models.Environment>().ToList();
                     data.ReleaseSteps = multi.Read<Step>().ToList();
+                    data.DeploymentSteps = multi.Read<DeploymentStep>().ToList();
                     data.ReleaseComponents = multi.Read<Component>().ToList();
                 }
             }
@@ -123,6 +124,30 @@ namespace RMDashboard.Repositories
                     on          step.ApproverGroupId = [group].Id
                     where       step.ReleaseId in (SELECT Id FROM @ScopedReleases)
                     
+                    -- deployment steps
+                    select      stageWorkflow.ReleaseId,
+                                stageWorkflow.StageId,
+                                releaseStep.Id AS releaseStepId,
+                                x.value('@DisplayName', 'varchar(max)') as 'activityDisplayName',
+                                CASE 
+									WHEN activityLog.[Status] = 1 THEN 'Pending'
+									WHEN activityLog.[Status] = 2 THEN 'In Progress'
+									WHEN activityLog.[Status] = 3 THEN 'Succeeded'
+									WHEN activityLog.[Status] = 4 THEN 'Failed'
+									WHEN activityLog.[Status] = 5 THEN 'Cancelled'
+                                    ELSE 'Unknown'
+                                END AS [Status],
+                                activityLog.DateStarted,
+                                activityLog.DateEnded
+                    from        ReleaseV2ActivityLog activityLog  
+                    left join   ReleaseV2Step releaseStep 
+                    on          activityLog.ReleaseStepId = releaseStep.Id
+                    inner join  ReleaseV2StageWorkflow stageWorkflow
+                    ON          (activityLog.ReleaseId = stageWorkflow.ReleaseId AND releaseStep.StageId = stageWorkflow.StageId)
+                    cross apply stageWorkflow.[Workflow].nodes('{2}//ActionActivity') as aa(x)
+                    where       stageWorkflow.ReleaseId in (SELECT Id FROM @ScopedReleases)
+                    and         x.value('@WorkflowActivityId', 'varchar(max)') = activityLog.WorkflowActivityId	
+
                     -- components for selected releases
                     select  ReleaseId = releaseComponent.ReleaseId,
                             TeamProject = releaseComponent.TeamProject,
@@ -137,7 +162,9 @@ namespace RMDashboard.Repositories
             {
                 whereClause = string.Format("where  release.ReleasePathId in ({0})", includedReleasePathIds);
             }
-            sql = string.Format(sql, releaseCount, whereClause);
+            const string defaultWorkflowXmlNamespace = "declare default element namespace \"clr-namespace:Microsoft.TeamFoundation.Release.Workflow.Activities;assembly=Microsoft.TeamFoundation.Release.Workflow\";";
+            sql = string.Format(sql, releaseCount, whereClause, defaultWorkflowXmlNamespace);
+
             return sql;
         }
     }

@@ -121,6 +121,11 @@ namespace RMDashboard.UnitTest.Controllers
                 .ForRelease(expectedRelease)
                 .ForStage(expectedStage)
                 .Build();
+            var expectedDeploymentStep = new DeploymentStepBuilder()
+                .ForRelease(expectedRelease)
+                .ForStage(expectedStage)
+                .ForStep(expectedStep)
+                .Build();
 
             var dataModel = new DataModelBuilder()
                 .WithRelease(expectedRelease)
@@ -128,6 +133,7 @@ namespace RMDashboard.UnitTest.Controllers
                 .WithStage(expectedStage)
                 .WithStageWorkflowFor(expectedRelease, expectedStage)
                 .WithStep(expectedStep)
+                .WithDeploymentStep(expectedDeploymentStep)
                 .Build();
 
             _releaseRepositoryMock.Setup((stub) => stub.GetReleaseData(It.IsAny<string>(), It.IsAny<int>()))
@@ -150,8 +156,13 @@ namespace RMDashboard.UnitTest.Controllers
             AssertAreStagesEqual(expectedStage, expectedEnvironment, actualStage);
 
             Assert.IsInstanceOfType(actualStage.steps, typeof(List<dynamic>), "Unexpected type for steps collection");
-            Assert.AreEqual(1, actualStage.steps.Count, "Unexpected number of steps for stage");
-            AssertAreStepsEqual(expectedStep, actualStage.steps[0]);
+            Assert.AreEqual(1, actualStage.steps.Count, "Unexpected number of steps for stage");            
+            var actualStep = actualStage.steps[0];
+            AssertAreStepsEqual(expectedStep, actualStep);
+
+            Assert.IsInstanceOfType(actualStep.deploymentSteps, typeof(List<dynamic>), "Unexpected type for deploymentStep collection");
+            Assert.AreEqual(1, actualStep.deploymentSteps.Count, "Unexpected number of steps for deploymentSteps");
+            AssertAreDeploymentStepsEqual(expectedDeploymentStep, actualStep.deploymentSteps[0]);
         }
 
         [TestMethod]
@@ -425,7 +436,7 @@ namespace RMDashboard.UnitTest.Controllers
             Assert.IsNotNull(result, "Unexpected result");
             Assert.IsNotNull(result.urlReleaseExplorer, "Unexpected url Release Explorer");
             Assert.AreNotEqual("", result.urlReleaseExplorer, "Unexpected url Release Explorer");
-        } 
+        }
 
         [TestMethod]
         public void Get_InvalidIncludedReleasePathIdsHeaderSpecified_BadRequestStatusReturned()
@@ -474,6 +485,14 @@ namespace RMDashboard.UnitTest.Controllers
             Assert.AreEqual(expectedStep.CreatedOn, actualStep.createdOn, "Unexpected createdOn for stage with id {0}", expectedStep.Id);
             Assert.AreEqual(expectedStep.Approver, actualStep.approver, "Unexpected approver for stage with id {0}", expectedStep.Id);
             Assert.AreEqual(expectedStep.IsAutomated, actualStep.isAutomated, "Unexpected approver for stage with id {0}", expectedStep.Id);
+        }
+
+        internal static void AssertAreDeploymentStepsEqual(DeploymentStep expectedDeploymentStep, dynamic actualDeploymentStep)
+        {
+            Assert.AreEqual(expectedDeploymentStep.ActivityDisplayName, actualDeploymentStep.name, "Unexpected name for deploymentstep");
+            Assert.AreEqual(expectedDeploymentStep.DateEnded, actualDeploymentStep.dateEnded, "Unexpected DateEnded for deploymentStep with name {0}", expectedDeploymentStep.ActivityDisplayName);
+            Assert.AreEqual(expectedDeploymentStep.DateStarted, actualDeploymentStep.dateStarted, "Unexpected DateStarted for deploymentStep with name {0}", expectedDeploymentStep.ActivityDisplayName);
+            Assert.AreEqual(expectedDeploymentStep.Status, actualDeploymentStep.status, "Unexpected Status for deploymentStep with name {0}", expectedDeploymentStep.ActivityDisplayName);
         }
 
         internal static void AssertReleasesCollectionContainsRelease(List<dynamic> releases, Release expectedRelease)

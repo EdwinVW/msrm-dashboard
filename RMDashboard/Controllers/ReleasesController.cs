@@ -1,18 +1,16 @@
-﻿using System;
+﻿using RMDashboard.Models;
+using RMDashboard.Repositories;
+using RMDashboard.Validators;
+using System;
 using System.Collections.Generic;
 using System.Configuration;
-using System.Data.SqlClient;
+using System.Diagnostics;
 using System.Dynamic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Web.Http;
-using Dapper;
-using RMDashboard.Models;
-using RMDashboard.Repositories;
-using RMDashboard.Validators;
 using System.Reflection;
-using System.Diagnostics;
+using System.Web.Http;
 
 namespace RMDashboard.Controllers
 {
@@ -25,7 +23,8 @@ namespace RMDashboard.Controllers
 
         private const string URL_RELEASE_EXPLORER_KEY = "UrlReleaseExplorer";
 
-        public ReleasesController() : this(new ReleaseRepository())
+        public ReleasesController()
+            : this(new ReleaseRepository())
         {
         }
 
@@ -78,7 +77,7 @@ namespace RMDashboard.Controllers
                     // release
                     dynamic release = CreateRelease(releaseData);
                     result.releases.Add(release);
-                    
+
                     // stages
                     var stages = data.Stages
                         .Where(stage => data.StageWorkflows.Any(wf => wf.StageId == stage.Id && wf.ReleaseId == releaseData.Id))
@@ -88,22 +87,31 @@ namespace RMDashboard.Controllers
                         dynamic stage = CreateStage(stageData, data.Environments);
                         release.stages.Add(stage);
 
-                        // Steps
+                        // Steps and Deploymentsteps
                         stage.steps = new List<dynamic>();
                         var steps = data.ReleaseSteps
                             .Where(step => step.StageId == stageData.Id && step.ReleaseId == releaseData.Id)
                             .OrderBy(step => step.Attempt)
                             .ThenBy(step => step.StepRank);
+
                         foreach (var stepData in steps)
                         {
+                            var deploymentSteps = data.DeploymentSteps
+                                .Where(deploymentStep => deploymentStep.StageId == stageData.Id && deploymentStep.ReleaseId == releaseData.Id && deploymentStep.ReleaseStepId == stepData.Id)
+                                //If there is no StartDate then this step must be ordered at the bottom, not at the top
+                                .OrderBy(deploymentStep => deploymentStep.DateStarted == null ? 2 : 1)
+                                .ThenBy(deploymentStep => deploymentStep.DateStarted);
+                            
                             dynamic step = CreateStep(stepData);
-                            stage.steps.Add(step);
+                            step.deploymentSteps = CreateDeploymentSteps(deploymentSteps);
+
+                            stage.steps.Add(step);                            
                         }
                     }
 
                     // components
                     if (showComponents)
-                    {                        
+                    {
                         var components = data.ReleaseComponents
                             .Where(c => c.ReleaseId == releaseData.Id)
                             .OrderBy(c => c.BuildDefinition);
@@ -152,6 +160,24 @@ namespace RMDashboard.Controllers
             return stage;
         }
 
+        public static List<dynamic> CreateDeploymentSteps(IEnumerable<DeploymentStep> deploymentSteps)
+        {
+            List<dynamic> deploymentStepResultList = new List<dynamic>();
+
+            foreach(var deploymentStep in deploymentSteps)
+            {
+                dynamic deploymentStepResult = new ExpandoObject();
+                deploymentStepResult.name = deploymentStep.ActivityDisplayName;
+                deploymentStepResult.dateEnded = deploymentStep.DateEnded;
+                deploymentStepResult.dateStarted = deploymentStep.DateStarted;
+                deploymentStepResult.status = deploymentStep.Status;
+
+                deploymentStepResultList.Add(deploymentStepResult);
+            }
+
+            return deploymentStepResultList;
+        }
+
         private static dynamic CreateStep(Step stepData)
         {
             dynamic step = new ExpandoObject();
@@ -162,6 +188,7 @@ namespace RMDashboard.Controllers
             step.status = stepData.Status;
             step.rank = stepData.StepRank;
             step.createdOn = stepData.CreatedOn;
+            step.deploymentSteps = new List<dynamic>();
 
             return step;
         }
@@ -171,6 +198,5 @@ namespace RMDashboard.Controllers
             var fileVersionInfo = FileVersionInfo.GetVersionInfo(assembly.Location);
             return fileVersionInfo.FileVersion;
         }
-
     }
 }

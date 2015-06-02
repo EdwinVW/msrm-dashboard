@@ -13,6 +13,7 @@ namespace RMDashboard.UnitTest.TestHelpers
         private List<Step> _releaseSteps;
         private List<Stage> _stages;
         private List<StageWorkflow> _stageWorkflows;
+        private List<DeploymentStep> _deploymentSteps;
 
         public DataModelBuilder()
         {
@@ -22,6 +23,7 @@ namespace RMDashboard.UnitTest.TestHelpers
             _releases = new List<Release>();
             _releaseSteps = new List<Step>();
             _stages = new List<Stage>();
+            _deploymentSteps = new List<DeploymentStep>();
             _stageWorkflows = new List<StageWorkflow>();
         }
 
@@ -92,6 +94,12 @@ namespace RMDashboard.UnitTest.TestHelpers
             return this;
         }
 
+        public DataModelBuilder WithDeploymentStep(DeploymentStep deploymentStep)
+        {
+            _deploymentSteps.Add(deploymentStep);
+            return this;
+        }
+
         public DataModel Build()
         {
             return new DataModel()
@@ -103,6 +111,7 @@ namespace RMDashboard.UnitTest.TestHelpers
                 ReleaseSteps = _releaseSteps,
                 Stages = _stages,
                 StageWorkflows = _stageWorkflows,
+                DeploymentSteps = _deploymentSteps
             };
         }
     }
