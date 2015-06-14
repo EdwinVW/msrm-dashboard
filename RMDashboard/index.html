@@ -42,14 +42,17 @@
                         <div class="header">{{stage.name}}</div>
                         <div>{{stage.environment}}</div>
                         <div ng-repeat="step in stage.steps" class="step" step-status-style>
+                            <div ng-hide="!step.deploymentSteps.length" class="showDeploymentStepsLink" ng-click="showDeploymentSteps = ! showDeploymentSteps">{{ showDeploymentSteps == true ? '-' : '+' }}</div>
                             <div><strong>{{step.name}}</strong></div>
                             <div>{{step.createdOn | date:'dd-MM-yyyy HH:mm:ss'}}</div>
                             <div ng-hide="step.isAutomated" class="approver">{{step.approver}}</div>
                             <div>Status : {{step.status}}</div>
-                            <div ng-repeat="deploymentStep in step.deploymentSteps" class="deploymentStep" deploymentstep-status-style>
-                                <div>{{deploymentStep.dateStarted | date:'HH:mm:ss'}}</div>
-                                <div>{{deploymentStep.name}}</div>
-                                <div>{{deploymentStep.status}}</div>
+                            <div class="deploymentSteps" ng-show="showDeploymentSteps">
+                                <div ng-repeat="deploymentStep in step.deploymentSteps" class="deploymentStep" deploymentstep-status-style>
+                                    <div>{{deploymentStep.dateStarted | date:'HH:mm:ss'}}</div>
+                                    <div>{{deploymentStep.name}}</div>
+                                    <div>{{deploymentStep.status}}</div>
+                                </div>
                             </div>
                         </div>
                     </div>
