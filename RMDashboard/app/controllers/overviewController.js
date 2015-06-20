@@ -1,7 +1,7 @@
 ﻿(function (angular) {
     'use strict';
 
-    function OverviewController($interval, releaseManagementService, configService) {
+    function OverviewController($interval, $scope, $cacheFactory, releaseManagementService, configService) {
         var vm = this;
         var refreshInterval = 300000;
         var autoRefresh = true;
@@ -35,6 +35,24 @@
             }
         }
 
+        var cache = $cacheFactory('deploymentStepState');
+        $scope.put = function (key, stepStatus) {
+            if (stepStatus != 'Pending') {
+                var value = cache.get(key);
+                cache.put(key, value === undefined ? true : !value);
+            }
+        };
+        $scope.get = function (key, stepStatus) {
+            if (stepStatus != 'Pending') {
+                var value = cache.get(key);
+                return value === undefined ? false : value;
+            }
+            else {
+                return true;
+            }
+        };
+        
+
         /**
         * Loads the data from the API
         */
@@ -53,7 +71,7 @@
         };
     }
 
-    OverviewController.$inject = ['$interval', 'releaseManagementService', 'configService'];
+    OverviewController.$inject = ['$interval', '$scope', '$cacheFactory', 'releaseManagementService', 'configService'];
 
     angular.module('rmDashboardApp').controller('overviewController', OverviewController);
 })(angular);
