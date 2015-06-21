@@ -42,7 +42,10 @@
                         <div class="header">{{stage.name}}</div>
                         <div>{{stage.environment}}</div>
                         <div ng-repeat="step in stage.steps" class="step" step-status-style>
-                            <div ng-hide="!step.deploymentSteps.length" class="showDeploymentStepsLink" ng-click="put([release.id, stage.id, step.id], step.status)" ng-bind="step.status == 'Pending' ? '' : get([release.id, stage.id, step.id], step.Status) == true ? '-' : '+'"></div>
+                            <div ng-hide="!step.deploymentSteps.length" class="showDeploymentStepsLink" 
+                                 ng-click="put([release.id, stage.id, step.id], step.status)" 
+                                 ng-bind="determineShowDeploymentStepText([release.id, stage.id, step.id], step.Status)">
+                            </div>
                             <div><strong>{{step.name}}</strong></div>
                             <div>{{step.createdOn | date:'dd-MM-yyyy HH:mm:ss'}}</div>
                             <div ng-hide="step.isAutomated" class="approver">{{step.approver}}</div>

@@ -35,6 +35,10 @@
             }
         }
 
+        /**
+        * Caching mechanism to keep track of the state of the collapsed deploymentSteps
+        * this prevents that the UI is changed to the initial state after a deployment refresh
+        */
         var cache = $cacheFactory('deploymentStepState');
         $scope.put = function (key, stepStatus) {
             if (stepStatus != 'Pending') {
@@ -50,6 +54,9 @@
             else {
                 return true;
             }
+        };
+        $scope.determineShowDeploymentStepText = function (key, stepStatus) {
+            return stepStatus == 'Pending' ? '' : $scope.get(key, stepStatus) == true ? '-' : '+';
         };
         
 
