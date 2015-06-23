@@ -136,6 +136,7 @@ namespace RMDashboard.Controllers
         private static dynamic CreateRelease(Release releaseData)
         {
             dynamic release = new ExpandoObject();
+            release.id = releaseData.Id;
             release.name = releaseData.Name;
             release.status = releaseData.Status;
             release.createdOn = releaseData.CreatedOn;

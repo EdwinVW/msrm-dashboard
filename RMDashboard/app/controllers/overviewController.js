@@ -1,7 +1,7 @@
 ﻿(function (angular) {
     'use strict';
 
-    function OverviewController($interval, releaseManagementService, configService) {
+    function OverviewController($interval, $cacheFactory, releaseManagementService, configService) {
         var vm = this;
         var refreshInterval = 300000;
         var autoRefresh = true;
@@ -36,6 +36,31 @@
         }
 
         /**
+        * Caching mechanism to keep track of the state of the collapsed deploymentSteps
+        * this prevents that the UI is changed to the initial state after a deployment refresh
+        */
+        var cache = $cacheFactory('deploymentStepState');
+        vm.put = function (key, stepStatus) {
+            if (stepStatus != 'Pending') {
+                var value = cache.get(key);
+                cache.put(key, value === undefined ? true : !value);
+            }
+        };
+        vm.get = function (key, stepStatus) {
+            if (stepStatus != 'Pending') {
+                var value = cache.get(key);
+                return value === undefined ? false : value;
+            }
+            else {
+                return true;
+            }
+        };
+        vm.determineShowDeploymentStepText = function (key, stepStatus) {
+            return stepStatus == 'Pending' ? '' : vm.get(key, stepStatus) == true ? '-' : '+';
+        };
+
+
+        /**
         * Loads the data from the API
         */
         function loadData() {
@@ -53,7 +78,7 @@
         };
     }
 
-    OverviewController.$inject = ['$interval', 'releaseManagementService', 'configService'];
+    OverviewController.$inject = ['$interval', '$cacheFactory', 'releaseManagementService', 'configService'];
 
     angular.module('rmDashboardApp').controller('overviewController', OverviewController);
 })(angular);
