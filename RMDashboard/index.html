@@ -44,7 +44,7 @@
                         <div ng-repeat="step in stage.steps" class="step" step-status-style>
                             <div ng-hide="!step.deploymentSteps.length" class="showDeploymentStepsLink" 
                                  ng-click="vm.put([release.id, stage.id, step.id], step.status)" 
-                                 ng-bind="vm.determineShowDeploymentStepText([release.id, stage.id, step.id], step.Status)">
+                                 ng-bind="vm.determineShowDeploymentStepText([release.id, stage.id, step.id], step.status)">
                             </div>
                             <div><strong>{{step.name}}</strong></div>
                             <div>{{step.createdOn | date:'dd-MM-yyyy HH:mm:ss'}}</div>
