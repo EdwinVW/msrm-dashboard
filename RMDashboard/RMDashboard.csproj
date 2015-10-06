@@ -80,6 +80,7 @@
     <Content Include="app\app.js" />
     <Content Include="app\controllers\configController.js" />
     <Content Include="app\controllers\overviewController.js" />
+    <Content Include="app\directives\deploymentstepStatusStyleDirective.js" />
     <Content Include="app\directives\stepStatusStyleDirective.js" />
     <Content Include="app\directives\releaseStatusStyleDirective.js" />
     <Content Include="app\services\configService.js" />

@@ -9,7 +9,8 @@ The dashboard shows the last 5 releases that were started on the RM server (the 
 Per release, the stages are shown that are defined in the releasepath that was chosen when the release was started.
 Also the components that are being deployed within the release are shown.
 For every stage a block is shown with the name of the stage and the name of the corresponding environment. 
-Within each stage block, the steps that are executed within that stage are shown. 
+Within each stage block, the steps that are executed within that stage are shown. When a step contains multiple actions, 
+the actions can be shown by clicking the '+' sign on the top-right corner of the step block.
 The stage that was chosen as target stage for the release is tagged with a bulls-eye icon in the top-left corner.
 When a step is an approval step and it is not automated, the user or group that has to approve is shown.
 
@@ -48,6 +49,7 @@ The user used to connect to the database must have read-access to the following 
 - ReleaseStatus
 - ReleaseStepStatus
 - ReleaseV2
+- ReleaseV2ActivityLog
 - ReleaseV2Component
 - ReleaseV2StageWorkflow
 - ReleaseV2Step

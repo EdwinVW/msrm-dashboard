@@ -15,11 +15,12 @@
     <script src="app/controllers/overviewController.js"></script>
     <script src="app/directives/releaseStatusStyleDirective.js"></script>
     <script src="app/directives/stepStatusStyleDirective.js"></script>
+    <script src="app/directives/deploymentStepStatusStyleDirective.js"></script>
 </head>
 <body>
     <div>
         <div class="title"><span>{{vm.title}}</span><span ng-show="vm.team"> - {{vm.team}}</span></div>
-        <div class="menuitem"><a href="/config.html">Configure</a></div>
+        <div class="menuitem"><a href="config.html">Configure</a></div>
         <div class="menuitem"><a target="_blank" href="{{vm.data.urlReleaseExplorer}}">Approvals</a></div>
         <div class="error" ng-show="vm.hasError">
             <div><strong>Error: {{vm.error.Message}}</strong></div>
@@ -41,10 +42,21 @@
                         <div class="header">{{stage.name}}</div>
                         <div>{{stage.environment}}</div>
                         <div ng-repeat="step in stage.steps" class="step" step-status-style>
+                            <div ng-hide="!step.deploymentSteps.length" class="showDeploymentStepsLink" 
+                                 ng-click="vm.put([release.id, stage.id, step.id], step.status)" 
+                                 ng-bind="vm.determineShowDeploymentStepText([release.id, stage.id, step.id], step.status)">
+                            </div>
                             <div><strong>{{step.name}}</strong></div>
                             <div>{{step.createdOn | date:'dd-MM-yyyy HH:mm:ss'}}</div>
                             <div ng-hide="step.isAutomated" class="approver">{{step.approver}}</div>
                             <div>Status : {{step.status}}</div>
+                            <div class="deploymentSteps" ng-show="vm.get([release.id, stage.id, step.id], step.status)">
+                                <div ng-repeat="deploymentStep in step.deploymentSteps" class="deploymentStep" deploymentstep-status-style>
+                                    <div>{{deploymentStep.dateStarted | date:'HH:mm:ss'}}</div>
+                                    <div>{{deploymentStep.name}}</div>
+                                    <div>{{deploymentStep.status}}</div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div class="stage-seperator" ng-class="{'last': $last}"></div>

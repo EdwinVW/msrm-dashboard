@@ -41,9 +41,9 @@ body {
     float: right;
 }
 
-.menuitem a {    
-    margin-right: 25px;
-}
+    .menuitem a {
+        margin-right: 25px;
+    }
 
 .release {
     color: #2b4055;
@@ -55,16 +55,18 @@ body {
     background-color: #83c2ff;
     border-radius: 10px;
 }
-    .name {
-        margin-left: 10px;
-        font-size: 175%;
-        font-weight: bold;
-    }
-    .date {
-        margin-left: 10px;
-        font-size: 125%;
-        font-weight: bold;
-    }
+
+.name {
+    margin-left: 10px;
+    font-size: 175%;
+    font-weight: bold;
+}
+
+.date {
+    margin-left: 10px;
+    font-size: 125%;
+    font-weight: bold;
+}
 
 .status-bar {
     border-radius: 2px;
@@ -126,6 +128,7 @@ body {
     }
 
 .step {
+    position: relative;
     font-size: smaller;
     margin: 5px;
     padding: 2px;
@@ -186,15 +189,55 @@ body {
         text-decoration: none;
     }
 
-    .config-panel a:hover {
-        color: whitesmoke;
-        background-color: #1982db;
-    }
+        .config-panel a:hover {
+            color: whitesmoke;
+            background-color: #1982db;
+        }
 
 .field {
     margin: 10px;
 }
 
-.approver{
+.approver {
     font-style: italic;
 }
+
+.deploymentStep {
+    border-radius: 5px;
+    font-style: italic;
+    margin: 5px;
+}
+
+    .deploymentStep.succeeded {
+        background-color: #CCFFB9;
+    }
+
+    .deploymentStep.failed {
+        background-color: #FF8C8C;
+    }
+
+    .deploymentStep.pending {
+        background-color: #FBFCFF;
+    }
+
+    .deploymentStep.in-progress {
+        background-color: #BECFFF;
+    }
+
+    .deploymentStep.cancelled {
+        background-color: #FFF645;
+    }
+
+.showDeploymentStepsLink {
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin-right: 4px;
+    margin-top: -5px;
+    font-weight: bold;
+    font-size: 18px;
+}
+
+    .showDeploymentStepsLink:hover {
+        cursor: pointer;
+    }
