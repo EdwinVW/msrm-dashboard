@@ -42,7 +42,7 @@ namespace RMDashboard.Controllers
                     return releasePath;
                 });
 
-                return result;
+                return result.OrderBy(r => r.name);
             }
             catch (Exception ex)
             {
