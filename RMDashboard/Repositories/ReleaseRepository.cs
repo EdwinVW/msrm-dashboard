@@ -15,6 +15,8 @@ namespace RMDashboard.Repositories
             using (var connection = new SqlConnection(ConfigurationManager.ConnectionStrings["ReleaseManagement"].ConnectionString))
             {
                 var sql = @"
+                    SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED
+
                     select	Id, 
                             Name, 
                             Description
@@ -50,6 +52,8 @@ namespace RMDashboard.Repositories
         private string GenerateSQL(int releaseCount, string includedReleasePathIds)
         {
             var sql = @"
+                    SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED
+
                     DECLARE @ScopedReleases TABLE
                     (
                        Id INT NOT NULL
