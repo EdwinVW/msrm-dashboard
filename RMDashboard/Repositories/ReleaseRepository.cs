@@ -30,6 +30,21 @@ namespace RMDashboard.Repositories
             }
         }
 
+        private static string DetermineTablePrefix()
+        {
+            // In RM 2015 RC, the tables are placed in a schema 'RM' and are prefixed witg 'tbl_'.
+            // To make sure the dashboard works with both the 2013 as the 2015 version, a table prefix 
+            // is determined based on the version-number in te database.
+            if (_DatabaseVersion.Major >= 14 && _DatabaseVersion.Build >= 22821)
+            {
+                return "RM.tbl_";
+            }
+            else
+            {
+                return string.Empty;
+            }
+        }
+
         private Version DetermineVersion()
         {
             Version databaseVersion = new Version();
@@ -50,28 +65,12 @@ namespace RMDashboard.Repositories
             return databaseVersion;
         }
 
-        private static string DetermineTablePrefix()
-        {
-            // In RM 2015 RC, the tables are placed in a schema 'RM' and are prefixed witg 'tbl_'.
-            // To make sure the dashboard works with both the 2013 as the 2015 version, a table prefix 
-            // is determined based on the version-number in te database.
-            if (_DatabaseVersion.Major >= 14 && _DatabaseVersion.Build >= 22821)
-            {
-                return "RM.tbl_";
-            }
-            else
-            {
-                return string.Empty;
-            }
-        }
 
         public List<ReleasePath> GetReleasePaths()
         {
             using (var connection = new SqlConnection(ConfigurationManager.ConnectionStrings["ReleaseManagement"].ConnectionString))
             {
                 var sql = @"
-                    SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED
-
                     select	Id, 
                             Name, 
                             Description
@@ -111,8 +110,6 @@ namespace RMDashboard.Repositories
         private string GenerateSQL(int releaseCount, string includedReleasePathIds)
         {
             var sql = @"
-                    SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED
-
                     DECLARE @ScopedReleases TABLE
                     (
                        Id INT NOT NULL
