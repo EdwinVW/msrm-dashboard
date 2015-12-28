@@ -10,6 +10,42 @@ namespace RMDashboard.Repositories
 {
     internal class ReleaseRepository : IReleaseRepository
     {
+        private Version _databaseVersion;
+        private string _tablePrefix = null;
+
+        internal ReleaseRepository()
+        {
+            Initialize();
+        }
+
+        private void Initialize()
+        {
+            // determine version
+            using (var connection = new SqlConnection(ConfigurationManager.ConnectionStrings["ReleaseManagement"].ConnectionString))
+            {
+                if (connection.Query("select * from sys.tables where name = 'Version'").Count() > 0)
+                {
+                    var version = connection.Query("select top(1) Number from Version").First();
+                    _databaseVersion = new Version(version.Number);
+                }
+                else
+                {
+                    var version = connection.Query("select top(1) Number from RM.tbl_Version").First();
+                    _databaseVersion = new Version(version.Number);
+                }
+            }
+
+            // In RM 2015 RC, the tables are placed in a schema 'RM' and are prefixed witg 'tbl_'.
+            // To make sure the dashboard works with both the 2013 as the 2014 version, a table prefix 
+            // is determined based on the version-number in te database.
+
+            if (_databaseVersion.Major >= 14 && _databaseVersion.Build >= 22821)
+            {
+                _tablePrefix = "RM.tbl_";
+            }
+        }
+
+
         public List<ReleasePath> GetReleasePaths()
         {
             using (var connection = new SqlConnection(ConfigurationManager.ConnectionStrings["ReleaseManagement"].ConnectionString))
@@ -20,8 +56,12 @@ namespace RMDashboard.Repositories
                     select	Id, 
                             Name, 
                             Description
-                    from    ReleasePath
+                    from    ##tableprefix##ReleasePath
                     where   IsDeleted = 0";
+
+                // handle version-dependent table-prefix
+                sql = sql.Replace("##tableprefix##", _tablePrefix);
+
                 return connection.Query<ReleasePath>(sql).ToList();
             }
         }
@@ -61,7 +101,7 @@ namespace RMDashboard.Repositories
 
                     INSERT INTO @ScopedReleases
                     SELECT TOP {0} Id 
-                    FROM ReleaseV2 release {1} 
+                    FROM ##tableprefix##ReleaseV2 release {1}  
                     Order By release.CreatedOn desc
 
                     -- releases
@@ -72,17 +112,17 @@ namespace RMDashboard.Repositories
                             TargetStageId = release.TargetStageId,
 							ReleasePathId = release.ReleasePathId,
 							ReleasePathName = releasepath.Name
-                    from	ReleaseV2 release
-                    join	ReleasePath releasepath
+                    from	##tableprefix##ReleaseV2 release
+                    join	##tableprefix##ReleasePath releasepath
 					on		releasepath.Id = release.ReleasePathId
-					join	ReleaseStatus status
+					join	##tableprefix##ReleaseStatus status
                     on		status.Id = release.StatusId
                     where   release.Id in (SELECT Id FROM @ScopedReleases)
                     order by CreatedOn desc
 
                     -- releaseworkflows
                     select	Id, ReleaseId, StageId
-                    from	ReleaseV2StageWorkflow
+                    from	##tableprefix##ReleaseV2StageWorkflow
                     where   ReleaseId in (SELECT Id FROM @ScopedReleases)
 
                     -- stages
@@ -91,14 +131,14 @@ namespace RMDashboard.Repositories
                             EnvironmentId = stage.EnvironmentId, 
                             Rank = stage.Rank, 
                             IsDeleted = stage.IsDeleted
-                    from	Stage stage
-                    join	StageType stagetype
+                    from	##tableprefix##Stage stage
+                    join	##tableprefix##StageType stagetype
                     on		stagetype.Id = stage.StageTypeId
 
                     -- environments / servers
                     select	Id = env.Id, 
 		                    Name = env.Name
-                    from	Environment env
+                    from	##tableprefix##Environment env
 
                     -- releasesteps
                     select	    Id = step.Id,
@@ -117,14 +157,14 @@ namespace RMDashboard.Repositories
 		                        Attempt = step.TrialNumber,
                                 CreatedOn = step.CreatedOn,
                                 ModifiedOn = step.ModifiedOn
-                    from	    ReleaseV2Step step
-                    join	    StageStepType steptype
+                    from	    ##tableprefix##ReleaseV2Step step
+                    join	    ##tableprefix##StageStepType steptype
                     on		    steptype.Id = step.StepTypeId
-                    join	    ReleaseStepStatus status
+                    join	    ##tableprefix##ReleaseStepStatus status
                     on		    status.Id = step.StatusId
-                    left join   [User] [user]
+                    left join   ##tableprefix##User [user]
                     on          step.ApproverId = [user].Id
-                    left join   SecurityGroup [group]
+                    left join   ##tableprefix##SecurityGroup [group]
                     on          step.ApproverGroupId = [group].Id
                     where       step.ReleaseId in (SELECT Id FROM @ScopedReleases)
                     
@@ -143,10 +183,10 @@ namespace RMDashboard.Repositories
                                 END AS [Status],
                                 activityLog.DateStarted,
                                 activityLog.DateEnded
-                    from        ReleaseV2ActivityLog activityLog  
-                    left join   ReleaseV2Step releaseStep 
+                    from        ##tableprefix##ReleaseV2ActivityLog activityLog  
+                    left join   ##tableprefix##ReleaseV2Step releaseStep 
                     on          activityLog.ReleaseStepId = releaseStep.Id
-                    inner join  ReleaseV2StageWorkflow stageWorkflow
+                    inner join  ##tableprefix##ReleaseV2StageWorkflow stageWorkflow
                     ON          (activityLog.ReleaseId = stageWorkflow.ReleaseId AND releaseStep.StageId = stageWorkflow.StageId)
                     cross apply stageWorkflow.[Workflow].nodes('{2}//ActionActivity') as aa(x)
                     where       stageWorkflow.ReleaseId in (SELECT Id FROM @ScopedReleases)
@@ -157,14 +197,17 @@ namespace RMDashboard.Repositories
                             TeamProject = releaseComponent.TeamProject,
                             BuildDefinition = releaseComponent.BuildDefinition,
                             Build = releaseComponent.Build
-                    from    ReleaseComponentV2 releaseComponent
+                    from    ##tableprefix##ReleaseComponentV2 releaseComponent
                     where   releaseComponent.ReleaseId in (SELECT Id FROM @ScopedReleases)";
+
+            // handle version-dependent table-prefix
+            sql = sql.Replace("##tableprefix##", _tablePrefix);
 
             // add where clause for filtering on ReleasePathId
             string whereClause = null;
             if (!string.IsNullOrEmpty(includedReleasePathIds))
             {
-                whereClause = string.Format("where  release.ReleasePathId in ({0})", includedReleasePathIds);
+                whereClause = string.Format("where release.ReleasePathId in ({0})", includedReleasePathIds);
             }
             const string defaultWorkflowXmlNamespace = "declare default element namespace \"clr-namespace:Microsoft.TeamFoundation.Release.Workflow.Activities;assembly=Microsoft.TeamFoundation.Release.Workflow\";";
             sql = string.Format(sql, releaseCount, whereClause, defaultWorkflowXmlNamespace);
