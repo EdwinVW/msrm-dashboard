@@ -10,8 +10,9 @@ namespace RMDashboard.Repositories
 {
     internal class ReleaseRepository : IReleaseRepository
     {
-        private Version _databaseVersion;
-        private string _tablePrefix = null;
+        private static bool _Initialized;
+        private static Version _DatabaseVersion;
+        private static string _TablePrefix = null;
 
         internal ReleaseRepository()
         {
@@ -20,31 +21,49 @@ namespace RMDashboard.Repositories
 
         private void Initialize()
         {
-            // determine version
+            if (!_Initialized)
+            {
+                _DatabaseVersion = DetermineVersion();
+                _TablePrefix = DetermineTablePrefix();
+
+                _Initialized = true;
+            }
+        }
+
+        private Version DetermineVersion()
+        {
+            Version databaseVersion = new Version();
             using (var connection = new SqlConnection(ConfigurationManager.ConnectionStrings["ReleaseManagement"].ConnectionString))
             {
                 if (connection.Query("select * from sys.tables where name = 'Version'").Count() > 0)
                 {
                     var version = connection.Query("select top(1) Number from Version").First();
-                    _databaseVersion = new Version(version.Number);
+                    databaseVersion = new Version(version.Number);
                 }
                 else
                 {
                     var version = connection.Query("select top(1) Number from RM.tbl_Version").First();
-                    _databaseVersion = new Version(version.Number);
+                    databaseVersion = new Version(version.Number);
                 }
             }
 
-            // In RM 2015 RC, the tables are placed in a schema 'RM' and are prefixed witg 'tbl_'.
-            // To make sure the dashboard works with both the 2013 as the 2014 version, a table prefix 
-            // is determined based on the version-number in te database.
-
-            if (_databaseVersion.Major >= 14 && _databaseVersion.Build >= 22821)
-            {
-                _tablePrefix = "RM.tbl_";
-            }
+            return databaseVersion;
         }
 
+        private static string DetermineTablePrefix()
+        {
+            // In RM 2015 RC, the tables are placed in a schema 'RM' and are prefixed witg 'tbl_'.
+            // To make sure the dashboard works with both the 2013 as the 2015 version, a table prefix 
+            // is determined based on the version-number in te database.
+            if (_DatabaseVersion.Major >= 14 && _DatabaseVersion.Build >= 22821)
+            {
+                return "RM.tbl_";
+            }
+            else
+            {
+                return string.Empty;
+            }
+        }
 
         public List<ReleasePath> GetReleasePaths()
         {
@@ -60,7 +79,7 @@ namespace RMDashboard.Repositories
                     where   IsDeleted = 0";
 
                 // handle version-dependent table-prefix
-                sql = sql.Replace("##tableprefix##", _tablePrefix);
+                sql = sql.Replace("##tableprefix##", _TablePrefix);
 
                 return connection.Query<ReleasePath>(sql).ToList();
             }
@@ -201,7 +220,7 @@ namespace RMDashboard.Repositories
                     where   releaseComponent.ReleaseId in (SELECT Id FROM @ScopedReleases)";
 
             // handle version-dependent table-prefix
-            sql = sql.Replace("##tableprefix##", _tablePrefix);
+            sql = sql.Replace("##tableprefix##", _TablePrefix);
 
             // add where clause for filtering on ReleasePathId
             string whereClause = null;
