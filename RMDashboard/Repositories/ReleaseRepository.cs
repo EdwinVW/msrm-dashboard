@@ -216,6 +216,10 @@ namespace RMDashboard.Repositories
                     where   releaseComponent.ReleaseId in (SELECT Id FROM @ScopedReleases)";
 
             // handle version-dependent table-prefix
+            if (string.IsNullOrEmpty(_TablePrefix))
+            {
+                sql = sql.Replace("##tableprefix##User", "##tableprefix##[User]");
+            }
             sql = sql.Replace("##tableprefix##", _TablePrefix);
 
             // add where clause for filtering on ReleasePathId
